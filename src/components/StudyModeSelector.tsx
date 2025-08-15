@@ -1,14 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Brain, BarChart3, ArrowLeft } from "lucide-react";
+import { BookOpen, Brain, BarChart3, ArrowLeft, Save } from "lucide-react";
 
 interface StudyModeSelectorProps {
   onModeSelect: (mode: 'flashcards' | 'quiz') => void;
   onBack: () => void;
   topic: string;
+  onSaveDeck?: () => void;
 }
 
-export const StudyModeSelector = ({ onModeSelect, onBack, topic }: StudyModeSelectorProps) => {
+export const StudyModeSelector = ({ onModeSelect, onBack, topic, onSaveDeck }: StudyModeSelectorProps) => {
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-4 mb-8">
@@ -16,10 +17,15 @@ export const StudyModeSelector = ({ onModeSelect, onBack, topic }: StudyModeSele
           <ArrowLeft size={16} className="mr-2" />
           Back
         </Button>
-        <div>
+        <div className="flex-1">
           <h2 className="text-2xl font-bold">Study: {topic}</h2>
           <p className="text-muted-foreground">Choose your study mode</p>
         </div>
+        {onSaveDeck && (
+          <Button variant="outline" size="sm" onClick={onSaveDeck} className="gap-2">
+            <Save size={16} /> Save Deck
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
