@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
-import { BookOpen, Globe, Brain, Sparkles } from "lucide-react";
+import { BookOpen, Globe, Brain, Sparkles, Flame } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
+import { useGamification } from "@/hooks/useGamification";
 
 interface MainNavigationProps {
   onTopicLearning: () => void;
@@ -8,6 +9,7 @@ interface MainNavigationProps {
 }
 
 export const MainNavigation = ({ onTopicLearning, onLanguageLearning }: MainNavigationProps) => {
+  const { xp, streak } = useGamification();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -23,6 +25,11 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning }: MainNavi
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
             Master any topic or language with personalized flashcards and quizzes powered by AI
           </p>
+          <div className="inline-flex items-center gap-4 bg-background/30 backdrop-blur-md border border-border rounded-full px-5 py-2 text-sm">
+            <span className="flex items-center gap-2"><Flame size={16} className="text-primary" /> Streak: {streak}</span>
+            <span>•</span>
+            <span>XP: {xp}</span>
+          </div>
         </div>
       </div>
 

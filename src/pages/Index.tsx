@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { TopicGenerator } from "@/components/TopicGenerator";
 import { StudyModeSelector } from "@/components/StudyModeSelector";
 import { StudyCard } from "@/components/StudyCard";
@@ -10,6 +10,12 @@ import { CustomVocabulary } from "@/components/CustomVocabulary";
 import { LanguageStudyMode } from "@/components/LanguageStudyMode";
 import { LanguageFlashcards } from "@/components/LanguageFlashcards";
 import { MainNavigation } from "@/components/MainNavigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Save, Flame } from "lucide-react";
+import { saveDeck, getSavedDecks, SavedDeck } from "@/hooks/localStorage";
+import { useGamification } from "@/hooks/useGamification";
+import { useSRS } from "@/hooks/useSRS";
 
 interface GeneratedContent {
   flashcards: Array<{ front: string; back: string }>;
@@ -48,6 +54,10 @@ const Index = () => {
   const [currentTopic, setCurrentTopic] = useState("");
   const [currentCard, setCurrentCard] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
+  const { xp, streak, gainXP } = useGamification();
+  const { review, dueCards } = useSRS();
+  const [savedDecksVersion, setSavedDecksVersion] = useState(0);
+  const savedDecks = useMemo(() => getSavedDecks(), [savedDecksVersion]);
   
   // Language learning state
   const [selectedLanguage, setSelectedLanguage] = useState("");
@@ -63,6 +73,22 @@ const Index = () => {
     setGeneratedContent(content);
     setCurrentTopic(content.flashcards[0]?.front.split('?')[0] || "Study Topic");
     setAppState('topic-mode-selection');
+    gainXP(2);
+  };
+
+  const handleSaveDeck = () => {
+    if (!generatedContent) return;
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const deck: SavedDeck = {
+      id,
+      title: currentTopic || 'Saved Deck',
+      createdAt: Date.now(),
+      flashcards: generatedContent.flashcards.map((c, i) => ({ ...c, id: `${id}-c${i}` })),
+      quizQuestions: generatedContent.quizQuestions,
+    };
+    saveDeck(deck);
+    setSavedDecksVersion(v => v + 1);
+    gainXP(5);
   };
 
   const handleTopicModeSelect = (mode: 'flashcards' | 'quiz') => {
@@ -82,6 +108,7 @@ const Index = () => {
     const generatedVocab = generateLanguageVocabulary(language, level);
     setCustomVocabulary(generatedVocab);
     setAppState('language-study-mode');
+    gainXP(2);
   };
 
   const handleLevelTest = (language: string) => {
@@ -105,6 +132,7 @@ const Index = () => {
     setCustomVocabulary(vocabulary);
     setSelectedLevel('custom');
     setAppState('language-study-mode');
+    gainXP(2);
   };
 
   const handleLanguageStudyModeSelect = (mode: 'flashcards' | 'quiz') => {
@@ -112,7 +140,7 @@ const Index = () => {
     setAppState(mode === 'flashcards' ? 'language-flashcards' : 'language-quiz');
   };
 
-  // Navigation helpers
+  // Navigation helpers + SRS grading for topic flashcards
   const handleNextCard = () => {
     if (appState === 'topic-flashcards' && generatedContent && currentCard < generatedContent.flashcards.length - 1) {
       setCurrentCard(currentCard + 1);
@@ -129,6 +157,11 @@ const Index = () => {
 
   const handleQuizComplete = (score: number) => {
     setQuizScore(score);
+    if (generatedContent && appState === 'topic-quiz') {
+      gainXP(5 + score);
+    } else if (appState === 'language-quiz') {
+      gainXP(5 + score);
+    }
     setAppState(appState === 'topic-quiz' ? 'topic-quiz-results' : 'language-quiz-results');
   };
 
@@ -196,6 +229,65 @@ const Index = () => {
     return baseVocab[language]?.[level] || baseVocab.es.beginner;
   };
 
+  const renderHomeExtras = () => {
+    if (appState !== 'main-navigation') return null;
+    const decks = savedDecks.slice(0, 5);
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <Card className="study-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Saved Decks</h3>
+              <div className="text-sm text-muted-foreground flex items-center gap-3">
+                <Flame size={16} className="text-primary" />
+                <span>Streak: {streak} • XP: {xp}</span>
+              </div>
+            </div>
+            {decks.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No decks yet. Generate a topic and save it.</div>
+            ) : (
+              <div className="space-y-2">
+                {decks.map(d => (
+                  <div key={d.id} className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{d.title}</div>
+                      <div className="text-xs text-muted-foreground">{new Date(d.createdAt).toLocaleString()}</div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      setGeneratedContent({
+                        flashcards: d.flashcards.map(c => ({ front: c.front, back: c.back })),
+                        quizQuestions: d.quizQuestions,
+                      });
+                      setCurrentTopic(d.title);
+                      setAppState('topic-mode-selection');
+                    }}>Open</Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          <Card className="study-card p-6">
+            <h3 className="text-lg font-semibold mb-4">Today’s Reviews</h3>
+            <div className="text-sm text-muted-foreground mb-3">Spaced repetition cards that are due now.</div>
+            <Button size="sm" onClick={() => {
+              // Quick review: jump to topic-flashcards if any due in current generated deck
+              const all = savedDecks.flatMap(d => d.flashcards.map(c => c.id || `${d.id}:${c.front}`));
+              const due = dueCards(all);
+              if (due.length === 0) return;
+              const firstDeck = savedDecks.find(d => d.flashcards.some(c => (c.id || `${d.id}:${c.front}`) === due[0]));
+              if (!firstDeck) return;
+              setGeneratedContent({ flashcards: firstDeck.flashcards.map(c => ({ front: c.front, back: c.back })), quizQuestions: firstDeck.quizQuestions });
+              setCurrentTopic(firstDeck.title);
+              setAppState('topic-flashcards');
+              setCurrentCard(Math.max(0, firstDeck.flashcards.findIndex(c => (c.id || `${firstDeck.id}:${c.front}`) === due[0])));
+            }}>Start Review</Button>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (appState) {
       case 'main-navigation':
@@ -215,20 +307,29 @@ const Index = () => {
             onModeSelect={handleTopicModeSelect}
             onBack={() => setAppState('topic-input')}
             topic={currentTopic}
+            onSaveDeck={generatedContent ? handleSaveDeck : undefined}
           />
         );
       
       case 'topic-flashcards':
         if (!generatedContent) return null;
         return (
-          <StudyCard
-            front={generatedContent.flashcards[currentCard].front}
-            back={generatedContent.flashcards[currentCard].back}
-            onNext={handleNextCard}
-            onPrevious={handlePreviousCard}
-            cardNumber={currentCard + 1}
-            totalCards={generatedContent.flashcards.length}
-          />
+          <div className="space-y-4">
+            <StudyCard
+              front={generatedContent.flashcards[currentCard].front}
+              back={generatedContent.flashcards[currentCard].back}
+              onNext={() => { handleNextCard(); gainXP(1); const cardId = `${currentTopic}-${currentCard}`; review(cardId, 'good'); }}
+              onPrevious={handlePreviousCard}
+              cardNumber={currentCard + 1}
+              totalCards={generatedContent.flashcards.length}
+            />
+            <div className="flex justify-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => { const id = `${currentTopic}-${currentCard}`; review(id, 'again'); }}>Again</Button>
+              <Button size="sm" variant="outline" onClick={() => { const id = `${currentTopic}-${currentCard}`; review(id, 'hard'); }}>Hard</Button>
+              <Button size="sm" variant="outline" onClick={() => { const id = `${currentTopic}-${currentCard}`; review(id, 'good'); }}>Good</Button>
+              <Button size="sm" variant="outline" onClick={() => { const id = `${currentTopic}-${currentCard}`; review(id, 'easy'); }}>Easy</Button>
+            </div>
+          </div>
         );
       
       case 'topic-quiz':
@@ -293,7 +394,7 @@ const Index = () => {
         return (
           <LanguageFlashcards
             vocabulary={customVocabulary}
-            onNext={handleNextCard}
+            onNext={() => { handleNextCard(); gainXP(1); const id = `${selectedLanguage}-${currentCard}`; review(id, 'good'); }}
             onPrevious={handlePreviousCard}
             cardNumber={currentCard + 1}
             totalCards={customVocabulary.length}
@@ -307,16 +408,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Main Content */}
       {appState === 'main-navigation' ? (
-        renderContent()
+        <>
+          {renderContent()}
+          {renderHomeExtras()}
+        </>
       ) : (
         <div className="container mx-auto px-4 py-12">
           {renderContent()}
         </div>
       )}
 
-      {/* Back to main navigation button for study modes */}
       {!['main-navigation', 'topic-input', 'language-selection'].includes(appState) && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2">
           <button
