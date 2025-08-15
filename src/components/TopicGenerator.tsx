@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Sparkles, BookOpen, Brain } from "lucide-react";
+import { Sparkles, BookOpen, Brain, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface GeneratedContent {
@@ -38,15 +38,10 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
     setIsGenerating(true);
     
     try {
-      // Simulate AI generation with realistic delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate flashcards based on topic
+      await new Promise(resolve => setTimeout(resolve, 800));
       const flashcards = generateFlashcards(topic, details);
       const quizQuestions = generateQuizQuestions(topic, details);
-      
       onContentGenerated({ flashcards, quizQuestions });
-      
       toast({
         title: "Study materials generated!",
         description: `Created ${flashcards.length} flashcards and ${quizQuestions.length} quiz questions.`,
@@ -62,8 +57,45 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
     }
   };
 
+  const handleImportText = async () => {
+    const text = prompt('Paste text to generate flashcards from:');
+    if (!text) return;
+    setTopic(topic || 'Imported Text');
+    setDetails(details || '');
+    const flashcards = splitTextToCards(text);
+    const quizQuestions = flashcards.slice(0, 3).map((c, i) => ({
+      question: c.front,
+      options: [c.back, 'Unknown', 'Irrelevant', 'Skip'],
+      correctAnswer: 0,
+      explanation: `Answer: ${c.back}`,
+    }));
+    onContentGenerated({ flashcards, quizQuestions });
+    toast({ title: 'Imported from text', description: `Created ${flashcards.length} cards.` });
+  };
+
+  const handleImportPDF = async (file: File) => {
+    try {
+      const text = await extractTextFromPDF(file);
+      if (!text) {
+        toast({ title: 'PDF import failed', description: 'Could not read text from PDF', variant: 'destructive' });
+        return;
+      }
+      const flashcards = splitTextToCards(text);
+      const quizQuestions = flashcards.slice(0, 3).map((c) => ({
+        question: c.front,
+        options: [c.back, 'Unknown', 'Irrelevant', 'Skip'],
+        correctAnswer: 0,
+        explanation: `Answer: ${c.back}`,
+      }));
+      setTopic(file.name.replace(/\.pdf$/i, ''));
+      onContentGenerated({ flashcards, quizQuestions });
+      toast({ title: 'Imported PDF', description: `Created ${flashcards.length} cards.` });
+    } catch (e) {
+      toast({ title: 'PDF import failed', description: 'Error while reading PDF', variant: 'destructive' });
+    }
+  };
+
   const generateFlashcards = (topic: string, details: string) => {
-    // Sample flashcard generation based on topic
     const baseCards = [
       { front: `What is ${topic}?`, back: `${topic} is a fundamental concept that ${details || 'involves key principles and applications in its field'}.` },
       { front: `Key characteristics of ${topic}`, back: `Main features include systematic approach, practical applications, and theoretical foundations.` },
@@ -71,7 +103,6 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
       { front: `How is ${topic} used?`, back: `${topic} is applied through various methods and techniques depending on the specific context and requirements.` },
       { front: `Main benefits of studying ${topic}`, back: `Understanding ${topic} provides better problem-solving skills and deeper knowledge in the subject area.` },
     ];
-    
     return baseCards;
   };
 
@@ -149,24 +180,39 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
           </div>
         </div>
 
-        <Button
-          onClick={generateContent}
-          disabled={isGenerating}
-          size="lg"
-          className="w-full"
-        >
-          {isGenerating ? (
-            <>
-              <Sparkles className="mr-2 animate-spin" size={20} />
-              Generating Study Materials...
-            </>
-          ) : (
-            <>
-              <Brain className="mr-2" size={20} />
-              Generate Study Materials
-            </>
-          )}
-        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Button
+            onClick={generateContent}
+            disabled={isGenerating}
+            size="lg"
+            className="w-full"
+          >
+            {isGenerating ? (
+              <>
+                <Sparkles className="mr-2 animate-spin" size={20} />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Brain className="mr-2" size={20} />
+                Generate
+              </>
+            )}
+          </Button>
+
+          <Button variant="outline" className="w-full" onClick={handleImportText}>
+            <Upload className="mr-2" size={18} /> Import Text
+          </Button>
+
+          <label className="w-full">
+            <input type="file" accept="application/pdf" className="hidden" onChange={(e) => {
+              const f = e.target.files?.[0]; if (f) handleImportPDF(f);
+            }} />
+            <div className="inline-flex w-full justify-center items-center gap-2 h-11 px-4 rounded-md border border-input bg-background hover:bg-accent cursor-pointer">
+              <Upload size={18} /> Import PDF
+            </div>
+          </label>
+        </div>
 
         <div className="grid grid-cols-2 gap-4 pt-4">
           <div className="text-center">
@@ -184,3 +230,46 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
     </Card>
   );
 };
+
+function splitTextToCards(text: string) {
+  const lines = text.split(/[\r\n]+/).map(s => s.trim()).filter(Boolean).slice(0, 40);
+  if (lines.length < 4) {
+    return [
+      { front: 'Summary', back: text.slice(0, 160) + (text.length > 160 ? '…' : '') },
+      { front: 'Key Idea', back: text.split(/\.\s/)[0] || text.slice(0, 100) },
+    ];
+  }
+  const cards: Array<{ front: string; back: string }> = [];
+  for (let i = 0; i < lines.length - 1; i += 2) {
+    cards.push({ front: lines[i], back: lines[i+1] });
+  }
+  return cards.slice(0, 20);
+}
+
+async function extractTextFromPDF(file: File): Promise<string> {
+  // Try to use PDF.js if available globally; otherwise fallback to simple read (most PDFs are binary not text)
+  // Users can import text from a text-based PDF; if not, show an error handled by caller
+  try {
+    // @ts-ignore
+    const pdfjsLib = (window as any)['pdfjsLib'];
+    if (pdfjsLib) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let p = 1; p <= Math.min(pdf.numPages, 10); p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        const strings = content.items.map((it: any) => it.str).join(' ');
+        fullText += strings + '\n';
+      }
+      return fullText;
+    }
+  } catch {}
+  // Fallback: try as text (works only for some PDFs)
+  try {
+    const text = await file.text();
+    return text;
+  } catch {
+    return '';
+  }
+}
