@@ -77,6 +77,8 @@ const resources = {
       "flashcards.previous": "Previous",
       "flashcards.next": "Next",
       "flashcards.back": "Back to Modes",
+      "flashcards.showing_question": "Showing question",
+      "flashcards.showing_answer": "Showing answer",
 
       // Quiz
       "quiz.title": "Quiz: {{topic}}",
@@ -218,6 +220,8 @@ const resources = {
       "flashcards.previous": "Попередня",
       "flashcards.next": "Наступна",
       "flashcards.back": "Назад до режимів",
+      "flashcards.showing_question": "Показує питання",
+      "flashcards.showing_answer": "Показує відповідь",
 
       // Quiz
       "quiz.title": "Тест: {{topic}}",

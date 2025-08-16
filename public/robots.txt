@@ -1,5 +1,5 @@
 User-agent: *
-Disallow: /
+Allow: /
 
-# Staging: block indexing; update for production to Allow and set proper sitemap URL.
-Sitemap: https://example.com/sitemap.xml
+# Production: allow indexing and set proper sitemap URL.
+Sitemap: https://ai-study-buddy.vercel.app/sitemap.xml

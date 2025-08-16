@@ -7,8 +7,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set CORS headers - restrict to our domain
+  const allowedOrigins = [
+    'https://ai-study-buddy.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Provider');
 
@@ -19,7 +28,14 @@ export default async function handler(req, res) {
 
   try {
     const body = req.body;
+    
+    // Validate provider - only allow whitelisted providers
+    const allowedProviders = ['deepseek', 'openai'];
     const provider = req.headers['x-provider'] || 'deepseek';
+    
+    if (!allowedProviders.includes(provider)) {
+      return res.status(400).json({ error: 'Invalid provider' });
+    }
 
     // Get API key from environment variables
     const apiKey = provider === 'openai'

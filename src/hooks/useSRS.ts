@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { getSrsMap, setSrsMap, SrsCardState } from './localStorage';
+import { track } from '@/lib/analytics';
 
 function nowMs() { return Date.now(); }
 
@@ -30,6 +31,16 @@ export function useSRS() {
     const next = calcNext(map[cardKey], grade);
     map[cardKey] = next;
     setSrsMap(map);
+    
+    // Track SRS review
+    track('srs_review', {
+      card_key: cardKey,
+      grade: grade,
+      new_interval: next.intervalDays,
+      ease_factor: next.ease,
+      total_reviews: next.totalReviews
+    });
+    
     return next;
   }, []);
 

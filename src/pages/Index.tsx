@@ -15,6 +15,8 @@ import { AICourseStructure } from "@/lib/aiAgent";
 import SavedDecks from "@/components/SavedDecks";
 import CoursePlayer from "@/components/CoursePlayer";
 import { useToast } from "@/hooks/use-toast";
+import LandingPage from "@/components/LandingPage";
+import { useNavigate } from "react-router-dom";
 
 // Unified page type for state machine
 type Page = 'main' | 'topic' | 'course' | 'language' | 'study-mode' | 'flashcards' | 'quiz' | 'language-flashcards';
@@ -39,6 +41,9 @@ interface AppContext {
 }
 
 export default function Index() {
+  const navigate = useNavigate();
+  const [showApp, setShowApp] = useState(false);
+  
   // State machine
   const [page, setPage] = useState<Page>('main');
   const [ctx, setCtx] = useState<AppContext>({
@@ -244,6 +249,32 @@ export default function Index() {
     gainXP(5);
   };
 
+  // Handle landing page actions
+  const handleStartApp = () => {
+    setShowApp(true);
+  };
+
+  const handleTryGenerate = async (prompt: string) => {
+    // Mock generation for demo
+    return `# Generated Content\n\nBased on: "${prompt}"\n\n- Card 1: Question → Answer\n- Card 2: Concept → Explanation\n- Card 3: Term → Definition\n\nReady to study!`;
+  };
+
+  const handleUpload = (file: File) => {
+    console.log('File uploaded:', file.name);
+    // Handle file upload logic here
+  };
+
+  // Show landing page first, then app
+  if (!showApp) {
+    return (
+      <LandingPage
+        onTryGenerate={handleTryGenerate}
+        onUpload={handleUpload}
+        onStart={handleStartApp}
+      />
+    );
+  }
+
   // Render the current page based on state machine
   const renderCurrentPage = () => {
     switch (page) {
@@ -355,6 +386,12 @@ export default function Index() {
             <span className="mx-2">|</span>
             <span>✨ {xp} XP</span>
           </div>
+          <button
+            onClick={() => setShowApp(false)}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Назад до головної
+          </button>
         </div>
       </header>
 

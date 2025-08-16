@@ -9,6 +9,7 @@ import { aiAgent } from "@/lib/aiAgent";
 import { useTranslation } from "react-i18next";
 import { LoadingBlock } from "./LoadingBlock";
 import { ErrorBlock } from "./ErrorBlock";
+import { track } from "@/lib/analytics";
 
 interface GeneratedContent {
   flashcards: Array<{ front: string; back: string }>;
@@ -75,6 +76,16 @@ export const TopicGenerator = ({ onContentGenerated, onBack }: TopicGeneratorPro
         const content = await aiAgent.generateContent(query);
         clearCountdown();
         onContentGenerated(content, topic);
+        
+        // Track successful generation
+        track('content_generated', {
+          type: 'topic',
+          mode: generationMode,
+          flashcards_count: content.flashcards.length,
+          quiz_count: content.quizQuestions.length,
+          provider: provider
+        });
+        
         toast({
           title: t('common.success'),
           description: `${content.flashcards.length} flashcards and ${content.quizQuestions.length} quiz questions created.`,

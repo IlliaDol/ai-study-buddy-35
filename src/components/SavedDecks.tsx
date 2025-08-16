@@ -3,6 +3,7 @@ import { Trash2, BookOpen, Clock } from 'lucide-react';
 import { SavedDeck } from '@/hooks/localStorage';
 import { Card } from '@/components/ui/card';
 import { useSRS } from '@/hooks/useSRS';
+import { track } from '@/lib/analytics';
 
 interface SavedDecksProps {
   decks: SavedDeck[];
@@ -33,7 +34,10 @@ export default function SavedDecks({ decks, onReview, onDelete }: SavedDecksProp
                   </p>
                 </div>
                 <button
-                  onClick={() => onDelete(deck.id)}
+                  onClick={() => {
+                    track('deck_deleted', { deck_id: deck.id, deck_title: deck.title });
+                    onDelete(deck.id);
+                  }}
                   className="text-gray-400 hover:text-red-500"
                   title="Delete deck"
                 >
@@ -57,7 +61,15 @@ export default function SavedDecks({ decks, onReview, onDelete }: SavedDecksProp
               </div>
 
               <button
-                onClick={() => onReview(deck)}
+                onClick={() => {
+                  track('deck_review_started', { 
+                    deck_id: deck.id, 
+                    deck_title: deck.title,
+                    due_cards: dueDeckCards.length,
+                    total_cards: deck.flashcards.length
+                  });
+                  onReview(deck);
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-md px-4 py-2 transition-colors"
               >
                 <BookOpen size={18} />

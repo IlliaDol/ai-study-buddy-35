@@ -1,8 +1,16 @@
 # AI Study Buddy
 
-AI-powered learning platform. Generate study materials, flashcards, quizzes, and courses.
+A modern, AI-powered study application built with React, TypeScript, and Vite. Transform any topic into interactive flashcards and quizzes with AI assistance.
 
-Now integrated with DeepSeek Reasoner as the default AI provider, including a visible countdown during API calls.
+## 🚀 Features
+
+- **AI-Powered Content Generation**: Create flashcards and quizzes from any topic
+- **Spaced Repetition System (SRS)**: Optimize learning with scientifically-proven intervals
+- **Multiple Study Modes**: Flashcards, quizzes, and structured courses
+- **Language Learning**: Specialized tools for vocabulary and phrase practice
+- **PWA Support**: Install as a native app with offline capabilities
+- **Multi-language**: English, Ukrainian, and German support
+- **Accessibility**: Full keyboard navigation and screen reader support
 
 ## Stack
 

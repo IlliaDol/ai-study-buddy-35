@@ -47,6 +47,10 @@ export function track(event: string, properties?: Record<string, any>) {
     if (posthog?.capture) {
       posthog.capture(event, properties);
     }
+    // Console logging for development
+    if (import.meta.env.DEV) {
+      console.log('📊 Analytics:', event, properties);
+    }
   } catch {}
 }
 
