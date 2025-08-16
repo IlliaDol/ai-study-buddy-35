@@ -479,7 +479,7 @@ export default function Index() {
                   <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-300 progress-bar"
-                      style={{ '--progress-width': `${(xp % 100)}%` } as React.CSSProperties}
+                      style={{ width: `${(xp % 100)}%` }}
                     ></div>
                   </div>
                 </div>

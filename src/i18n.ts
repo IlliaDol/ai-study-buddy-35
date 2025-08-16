@@ -28,6 +28,13 @@ const resources = {
       "main.reviewSection.button": "Start Review",
       "main.savedContent.title": "Your Saved Content",
 
+      "main.actions.startLearning": "Start Learning",
+      "main.status.noKey": "No API key",
+      "main.stats.xp": "Experience",
+      "main.stats.streak": "Streak",
+      "main.stats.days_one": "{{count}} day",
+      "main.stats.days_other": "{{count}} days",
+
       // Topic Generator
       "topic.title": "Generate Learning Content",
       "topic.prompt": "What would you like to learn about?",
@@ -170,6 +177,14 @@ const resources = {
       "main.reviewSection.description_other": "У вас є картки для повторення в {{count}} колодах",
       "main.reviewSection.button": "Почати повторення",
       "main.savedContent.title": "Ваш збережений контент",
+
+
+      "main.actions.startLearning": "Почати навчання",
+      "main.status.noKey": "Немає API ключа",
+      "main.stats.xp": "Досвід",
+      "main.stats.streak": "Серія",
+      "main.stats.days_one": "{{count}} день",
+      "main.stats.days_other": "{{count}} дні",
 
       // Topic Generator
       "topic.title": "Створення навчального контенту",

@@ -8,12 +8,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: true,
     port: Number(process.env.PORT) || 8080,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false
-      }
+    hmr: {
+      port: 8080,
+      host: 'localhost',
+      protocol: 'ws'
+    },
+    watch: {
+      usePolling: false,
+      interval: 100
     }
   },
   preview: {

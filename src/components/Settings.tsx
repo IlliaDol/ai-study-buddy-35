@@ -10,7 +10,7 @@ interface SettingsProps {
 
 export const Settings = ({ onClose }: SettingsProps) => {
   const { t } = useTranslation();
-  const [provider, setProvider] = useState('deepseek');
+  const [provider, setProvider] = useState('offline');
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [keyError, setKeyError] = useState('');
@@ -18,7 +18,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
 
   useEffect(() => {
     // Load current settings from localStorage
-    const currentProvider = localStorage.getItem('AI_PROVIDER') || 'deepseek';
+    const currentProvider = localStorage.getItem('AI_PROVIDER') || 'offline';
     const currentKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '';
 
     setProvider(currentProvider);
@@ -100,6 +100,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
             >
               <option value="deepseek">DeepSeek Reasoner</option>
               <option value="openai">OpenAI GPT</option>
+              <option value="offline">Offline (no key)</option>
             </select>
           </div>
 

@@ -1,153 +1,45 @@
-// API Configuration for AI Study Buddy
-// This file contains API settings and keys for external services
+// API Configuration for AI Study Buddy (production-safe)
+// NOTE: Secrets MUST NOT be committed to the repo. Keys come from runtime settings only.
+
+export type Provider = 'offline' | 'deepseek' | 'openai';
 
 export interface APIConfig {
-  provider: 'deepseek' | 'openai';
+  provider: Exclude<Provider, 'offline'>;
   apiKey: string;
-  baseUrl?: string;
-  model?: string;
-  temperature?: number;
-  maxTokens?: number;
+  baseUrl: string;
+  model: string;
+  temperature: number;
+  maxTokens: number;
 }
 
-// Default API configuration
-export const defaultAPIConfig: Omit<APIConfig, 'apiKey'> = {
-  provider: 'deepseek',
+// Provider presets (without secrets)
+export const deepseekPreset = {
+  provider: 'deepseek' as const,
   baseUrl: 'https://api.deepseek.com/chat/completions',
   model: 'deepseek-reasoner',
   temperature: 0.2,
-  // Keep responses concise to avoid timeouts
   maxTokens: 800,
 };
 
-// OpenAI configuration
-export const openaiConfig: Omit<APIConfig, 'apiKey'> = {
-  provider: 'openai',
+export const openaiPreset = {
+  provider: 'openai' as const,
   baseUrl: 'https://api.openai.com/v1/chat/completions',
   model: 'gpt-4o-mini',
   temperature: 0.2,
-  // Keep responses concise to avoid timeouts
   maxTokens: 800,
 };
 
-// API Keys - Replace with your actual keys
-export const API_KEYS = {
-  // DeepSeek API Key - Insert your key here
-  DEEPSEEK_API_KEY: 'sk-2231f2e6d3d84fd5ab2a4021fbe2d306', // sk-your-deepseek-key-here
-  
-  // OpenAI API Key - Not used (DeepSeek only)
-  OPENAI_API_KEY: '', // Not needed - using DeepSeek only
-};
-
-// Get API configuration based on provider
-export function getAPIConfig(provider: 'deepseek' | 'openai'): APIConfig {
-  const apiKey = provider === 'deepseek' 
-    ? API_KEYS.DEEPSEEK_API_KEY 
-    : API_KEYS.OPENAI_API_KEY;
-    
-  if (!apiKey) {
-    throw new Error(`API key not configured for provider: ${provider}`);
-  }
-  
-  const config = provider === 'deepseek' ? defaultAPIConfig : openaiConfig;
-  
-  return {
-    ...config,
-    apiKey,
-  };
-}
-
-// Validate API key format
-export function validateAPIKey(key: string, provider: 'deepseek' | 'openai'): boolean {
-  if (!key || typeof key !== 'string') return false;
-  
-  // Both DeepSeek and OpenAI keys start with 'sk-'
-  if (!key.startsWith('sk-')) return false;
-  
-  // Basic length validation
-  if (key.length < 20) return false;
-  
-  return true;
-}
-
-// Get current API configuration from localStorage or config file
-export function getCurrentAPIConfig(): APIConfig | null {
-  try {
-    // First try localStorage (for runtime configuration)
-    const provider = (localStorage.getItem('AI_PROVIDER') || 'deepseek') as 'deepseek' | 'openai';
-    const localKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY');
-    
-    if (localKey && validateAPIKey(localKey, provider)) {
-      const config = provider === 'deepseek' ? defaultAPIConfig : openaiConfig;
-      return {
-        ...config,
-        apiKey: localKey,
-      };
-    }
-    
-    // Fallback to config file keys
-    return getAPIConfig(provider);
-  } catch (error) {
-    console.warn('Failed to get API configuration:', error);
-    return null;
-  }
-}
-
-// Set API configuration in localStorage
-export function setAPIConfig(provider: 'deepseek' | 'openai', apiKey: string): boolean {
-  if (!validateAPIKey(apiKey, provider)) {
-    console.error('Invalid API key format');
-    return false;
-  }
-  
-  try {
-    localStorage.setItem('AI_PROVIDER', provider);
-    localStorage.setItem('AI_API_KEY', apiKey);
-    
-    // Keep legacy OpenAI key for backward compatibility
-    if (provider === 'openai') {
-      localStorage.setItem('OPENAI_API_KEY', apiKey);
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Failed to save API configuration:', error);
-    return false;
-  }
-}
-
-// Clear API configuration
-export function clearAPIConfig(): void {
-  localStorage.removeItem('AI_PROVIDER');
-  localStorage.removeItem('AI_API_KEY');
-  localStorage.removeItem('OPENAI_API_KEY');
-}
-
-// Check if API is configured
-export function isAPIConfigured(): boolean {
-  const config = getCurrentAPIConfig();
-  return config !== null && !!config.apiKey;
-}
-
-// Get provider display name
-export function getProviderDisplayName(provider: 'deepseek' | 'openai'): string {
-  return provider === 'deepseek' ? 'DeepSeek Reasoner' : 'OpenAI GPT';
-}
-
-// API timeout configuration
 export const API_TIMEOUTS = {
-  DEFAULT: 45000, // 45 seconds (reduce deadline_exceeded)
-  QUICK: 15000,   // 15 seconds for quick operations
-  LONG: 120000,    // 120 seconds for complex operations
+  DEFAULT: 45_000,
+  QUICK: 15_000,
+  LONG: 120_000,
 };
 
-// Rate limiting configuration
 export const RATE_LIMITS = {
   REQUESTS_PER_MINUTE: 60,
   REQUESTS_PER_HOUR: 1000,
 };
 
-// Error messages
 export const API_ERROR_MESSAGES = {
   INVALID_KEY: 'Invalid API key format. Keys should start with "sk-"',
   KEY_NOT_CONFIGURED: 'API key not configured. Please set your API key in settings.',
@@ -156,3 +48,73 @@ export const API_ERROR_MESSAGES = {
   SERVER_ERROR: 'Server error. Please try again later.',
   TIMEOUT: 'Request timeout. The API took too long to respond.',
 };
+
+export function validateAPIKey(key: string): boolean {
+  if (!key || typeof key !== 'string') return false;
+  if (!key.startsWith('sk-')) return false;
+  return key.length >= 20;
+}
+
+/** Returns the current provider string (may be 'offline' when no key). */
+export function getCurrentProvider(): Provider {
+  const p = (localStorage.getItem('AI_PROVIDER') || 'offline') as Provider;
+  return p;
+}
+
+/** Returns a full API config or null if not configured (use offline fallback). */
+export function getCurrentAPIConfig(): APIConfig | null {
+  try {
+    const provider = getCurrentProvider();
+    if (provider === 'offline') return null;
+
+    const key = (localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '').trim();
+    if (!validateAPIKey(key)) return null;
+
+    const preset = provider === 'deepseek' ? deepseekPreset : openaiPreset;
+    return { ...preset, apiKey: key };
+  } catch (err) {
+    console.warn('Failed to get API configuration:', err);
+    return null;
+  }
+}
+
+export function setAPIConfig(provider: Provider, apiKey?: string): boolean {
+  try {
+    localStorage.setItem('AI_PROVIDER', provider);
+
+    if (provider === 'offline') {
+      localStorage.removeItem('AI_API_KEY');
+      return true;
+    }
+
+    const key = (apiKey || '').trim();
+    if (!validateAPIKey(key)) return false;
+    localStorage.setItem('AI_API_KEY', key);
+    if (provider === 'openai') localStorage.setItem('OPENAI_API_KEY', key); // legacy compat
+    return true;
+  } catch (err) {
+    console.error('Failed to save API configuration:', err);
+    return false;
+  }
+}
+
+export function clearAPIConfig(): void {
+  localStorage.removeItem('AI_PROVIDER');
+  localStorage.removeItem('AI_API_KEY');
+  localStorage.removeItem('OPENAI_API_KEY');
+}
+
+export function isAPIConfigured(): boolean {
+  return getCurrentAPIConfig() !== null;
+}
+
+export function getProviderDisplayName(provider: Provider): string {
+  switch (provider) {
+    case 'deepseek':
+      return 'DeepSeek Reasoner';
+    case 'openai':
+      return 'OpenAI GPT';
+    default:
+      return 'Offline';
+  }
+}
