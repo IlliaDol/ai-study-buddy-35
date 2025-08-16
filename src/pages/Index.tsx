@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MainNavigation } from "@/components/MainNavigation";
 import { TopicGenerator } from "@/components/TopicGenerator";
 import { CourseGenerator } from "@/components/CourseGenerator";
@@ -12,18 +13,34 @@ import { useSRS } from "@/hooks/useSRS";
 import { getSavedDecks, saveDeck, SavedDeck } from "@/hooks/localStorage";
 import { AICourseStructure } from "@/lib/aiAgent";
 
-type PageState = 
-  | 'main' 
-  | 'topic-learning' 
+type PageState =
+  | 'main'
+  | 'topic-learning'
   | 'course-generation'
-  | 'language-learning' 
-  | 'study-mode-selector' 
-  | 'flashcards' 
-  | 'quiz' 
+  | 'language-learning'
+  | 'study-mode-selector'
+  | 'flashcards'
+  | 'quiz'
   | 'language-flashcards';
 
+function usePageFromPath(pathname: string): PageState {
+  if (pathname === "/") return "main";
+  const map: Record<string, PageState> = {
+    "/topic-learning": "topic-learning",
+    "/course-generation": "course-generation",
+    "/language-learning": "language-learning",
+    "/study": "study-mode-selector",
+    "/flashcards": "flashcards",
+    "/quiz": "quiz",
+    "/language-flashcards": "language-flashcards",
+  };
+  return map[pathname] || "main";
+}
+
 export default function Index() {
-  const [currentPage, setCurrentPage] = useState<PageState>('main');
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [currentTopic, setCurrentTopic] = useState("");
   const [currentContent, setCurrentContent] = useState<{
     flashcards: Array<{ front: string; back: string }>;
@@ -37,15 +54,18 @@ export default function Index() {
   const [currentCourse, setCurrentCourse] = useState<AICourseStructure | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState("");
   const [currentLanguageContent, setCurrentLanguageContent] = useState<Array<{ front: string; back: string }>>([]);
-  
+  const [languageCardIndex, setLanguageCardIndex] = useState<number>(1);
+
   const { gainXP } = useGamification();
   const { review, dueCards } = useSRS();
   const [savedDecks, setSavedDecks] = useState<SavedDeck[]>(() => getSavedDecks());
 
-  const handleTopicLearning = () => setCurrentPage('topic-learning');
-  const handleCourseGeneration = () => setCurrentPage('course-generation');
-  const handleLanguageLearning = () => setCurrentPage('language-learning');
-  const handleBackToMain = () => setCurrentPage('main');
+  const currentPage: PageState = usePageFromPath(location.pathname);
+
+  const handleTopicLearning = () => navigate('/topic-learning');
+  const handleCourseGeneration = () => navigate('/course-generation');
+  const handleLanguageLearning = () => navigate('/language-learning');
+  const handleBackToMain = () => navigate('/');
 
   const handleContentGenerated = (content: {
     flashcards: Array<{ front: string; back: string }>;
@@ -57,14 +77,13 @@ export default function Index() {
     }>;
   }) => {
     setCurrentContent(content);
-    setCurrentPage('study-mode-selector');
-    gainXP(10); // XP for generating content
+    navigate('/study');
+    gainXP(10);
   };
 
   const handleCourseGenerated = (course: AICourseStructure) => {
     setCurrentCourse(course);
     setCurrentTopic(course.title);
-    // Start with first module content
     const firstModule = course.modules[0];
     const content = {
       flashcards: firstModule.flashcards.map(fc => ({ front: fc.front, back: fc.back })),
@@ -76,19 +95,20 @@ export default function Index() {
       }))
     };
     setCurrentContent(content);
-    setCurrentPage('study-mode-selector');
-    gainXP(20); // More XP for comprehensive course
+    navigate('/study');
+    gainXP(20);
   };
 
   const handleLanguageContentGenerated = (language: string, content: Array<{ front: string; back: string }>) => {
     setCurrentLanguage(language);
     setCurrentLanguageContent(content);
-    setCurrentPage('language-flashcards');
+    setLanguageCardIndex(1);
+    navigate('/language-flashcards');
     gainXP(10);
   };
 
   const handleModeSelect = (mode: 'flashcards' | 'quiz') => {
-    setCurrentPage(mode);
+    navigate(mode === 'flashcards' ? '/flashcards' : '/quiz');
     gainXP(5);
   };
 
@@ -115,7 +135,7 @@ export default function Index() {
 
   const handleQuizComplete = (score: number, total: number) => {
     const percentage = (score / total) * 100;
-    const xp = Math.round(percentage / 10) + 5; // 5-15 XP based on performance
+    const xp = Math.round(percentage / 10) + 5;
     gainXP(xp);
   };
 
@@ -125,17 +145,9 @@ export default function Index() {
       flashcards: deck.flashcards,
       quizQuestions: deck.quizQuestions,
     });
-    setCurrentPage('study-mode-selector');
+    navigate('/study');
   };
 
-  const handleDeleteDeck = (deckId: string) => {
-    // Import deleteDeck function
-    const { deleteDeck } = require('@/hooks/localStorage');
-    deleteDeck(deckId);
-    setSavedDecks(getSavedDecks());
-  };
-
-  // Get due cards for review
   const dueCardsForReview = savedDecks.flatMap(deck => {
     const cardKeys = deck.flashcards.map((_, index) => `${deck.id}-flashcard-${index}`);
     return dueCards(cardKeys).map(cardKey => {
@@ -150,19 +162,19 @@ export default function Index() {
         };
       }
       return null;
-    }).filter(Boolean);
+    }).filter(Boolean) as any[];
   });
 
   return (
     <div className="min-h-screen bg-background">
       {currentPage === 'main' && (
         <div>
-          <MainNavigation 
+          <MainNavigation
             onTopicLearning={handleTopicLearning}
             onLanguageLearning={handleLanguageLearning}
+            onCourseGeneration={handleCourseGeneration}
           />
-          
-          {/* Saved Decks Section */}
+
           {savedDecks.length > 0 && (
             <div className="container mx-auto px-4 py-8">
               <h2 className="text-2xl font-bold mb-6">Your Saved Decks</h2>
@@ -181,7 +193,11 @@ export default function Index() {
                         Study
                       </button>
                       <button
-                        onClick={() => handleDeleteDeck(deck.id)}
+                        onClick={() => {
+                          const { deleteDeck } = require('@/hooks/localStorage');
+                          deleteDeck(deck.id);
+                          setSavedDecks(getSavedDecks());
+                        }}
                         className="px-3 py-1 border border-destructive text-destructive rounded text-sm hover:bg-destructive hover:text-destructive-foreground"
                       >
                         Delete
@@ -193,7 +209,6 @@ export default function Index() {
             </div>
           )}
 
-          {/* Today's Reviews Section */}
           {dueCardsForReview.length > 0 && (
             <div className="container mx-auto px-4 py-8">
               <h2 className="text-2xl font-bold mb-6">Today's Reviews</h2>
@@ -250,7 +265,40 @@ export default function Index() {
       )}
 
       {currentPage === 'language-learning' && (
-        <LanguageLearning onContentGenerated={handleLanguageContentGenerated} />
+        <LanguageLearning
+          onLanguageSelect={(language, level) => {
+            // For now, send a minimal flashcard set stub based on language+level
+            handleLanguageContentGenerated(
+              language,
+              [
+                { front: `${language.toUpperCase()} basics (${level})`, back: "Hello → Hola / Hallo / Bonjour" },
+                { front: "Goodbye", back: "Adiós / Tschüss / Au revoir" },
+              ]
+            );
+          }}
+          onLevelTest={(language) => {
+            // Future: navigate to a dedicated assessment path
+            // For demo, go to study selector with placeholder content
+            setCurrentTopic(`${language} Level Test`);
+            setCurrentContent({
+              flashcards: [
+                { front: "Translate: apple", back: "manzana / Apfel / pomme" },
+                { front: "Choose the correct article for 'Haus'", back: "das" },
+              ],
+              quizQuestions: [
+                { question: "apple in Spanish?", options: ["manzana", "perro", "casa", "libro"], correctAnswer: 0 },
+                { question: "'Haus' article? (German)", options: ["der", "die", "das", "den"], correctAnswer: 2 },
+              ],
+            });
+            navigate('/study');
+          }}
+          onCustomVocab={(language) => {
+            // For now, navigate to language-flashcards with empty list and let user add later
+            setCurrentLanguage(language);
+            setCurrentLanguageContent([]);
+            navigate('/language-flashcards');
+          }}
+        />
       )}
 
       {currentPage === 'study-mode-selector' && currentContent && (
@@ -265,7 +313,7 @@ export default function Index() {
       {currentPage === 'flashcards' && currentContent && (
         <StudyCard
           flashcards={currentContent.flashcards}
-          onBack={() => setCurrentPage('study-mode-selector')}
+          onBack={() => navigate('/study')}
           onReview={handleFlashcardReview}
         />
       )}
@@ -273,18 +321,35 @@ export default function Index() {
       {currentPage === 'quiz' && currentContent && (
         <QuizMode
           questions={currentContent.quizQuestions}
-          onBack={() => setCurrentPage('study-mode-selector')}
+          onBack={() => navigate('/study')}
           onComplete={handleQuizComplete}
         />
       )}
 
       {currentPage === 'language-flashcards' && currentLanguageContent.length > 0 && (
-        <LanguageFlashcards
-          flashcards={currentLanguageContent}
-          language={currentLanguage}
-          onBack={() => setCurrentPage('language-learning')}
-          onReview={handleFlashcardReview}
-        />
+        <div className="container mx-auto px-4 py-8 space-y-4">
+          <div>
+            <button
+              onClick={() => navigate('/language-learning')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              ← Back to Language Learning
+            </button>
+          </div>
+          {(() => {
+            const vocabulary = currentLanguageContent.map((c, i) => ({ id: String(i), word: c.front, translation: c.back }));
+            const total = vocabulary.length;
+            return (
+              <LanguageFlashcards
+                vocabulary={vocabulary as any}
+                onNext={() => setLanguageCardIndex((n) => Math.min(n + 1, total))}
+                onPrevious={() => setLanguageCardIndex((n) => Math.max(n - 1, 1))}
+                cardNumber={languageCardIndex}
+                totalCards={total}
+              />
+            );
+          })()}
+        </div>
       )}
     </div>
   );

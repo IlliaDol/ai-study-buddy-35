@@ -21,6 +21,14 @@ const App = () => (
       >
         <Routes>
           <Route path="/" element={<Index />} />
+          {/* Sub-routes render the same Index component, which derives the view from the path */}
+          <Route path="/topic-learning" element={<Index />} />
+          <Route path="/course-generation" element={<Index />} />
+          <Route path="/language-learning" element={<Index />} />
+          <Route path="/study" element={<Index />} />
+          <Route path="/flashcards" element={<Index />} />
+          <Route path="/quiz" element={<Index />} />
+          <Route path="/language-flashcards" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
