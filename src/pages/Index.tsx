@@ -17,6 +17,7 @@ import CoursePlayer from "@/components/CoursePlayer";
 import { useToast } from "@/hooks/use-toast";
 import LandingPage from "@/components/LandingPage";
 import { useNavigate } from "react-router-dom";
+import { Brain, Flame, Sparkles, ArrowLeft, BookOpen, Clock } from "lucide-react";
 
 // Unified page type for state machine
 type Page = 'main' | 'topic' | 'course' | 'language' | 'study-mode' | 'flashcards' | 'quiz' | 'language-flashcards';
@@ -280,27 +281,94 @@ export default function Index() {
     switch (page) {
       case 'main':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <MainNavigation
               onTopicLearning={handleTopicLearning}
               onCourseGeneration={handleCourseGeneration}
               onLanguageLearning={handleLanguageLearning}
             />
 
+            {/* Quick Stats Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Total Decks</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{savedDecks.length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Experience</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{xp} XP</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Flame className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Streak</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{streak} days</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <Brain className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Level</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{Math.floor(xp / 100) + 1}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Due Cards Alert - Enhanced */}
             {dueDecksCount > 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 my-4">
-                <h3 className="font-medium">Review Time!</h3>
-                <p className="text-sm mb-2">You have cards due for review in {dueDecksCount} {dueDecksCount === 1 ? 'deck' : 'decks'}.</p>
-                <button
-                  onClick={handleStartDueReview}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-1 rounded-md text-sm"
-                >
-                  Start Review
-                </button>
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-1">Review Time!</h3>
+                    <p className="text-amber-700 dark:text-amber-300">
+                      You have cards due for review in {dueDecksCount} {dueDecksCount === 1 ? 'deck' : 'decks'}.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleStartDueReview}
+                    className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-lg"
+                  >
+                    Start Review
+                  </button>
+                </div>
               </div>
             )}
 
-            {savedDecks.length > 0 && <SavedDecks decks={savedDecks} onReview={handleStartReview} onDelete={handleDeleteDeck} />}
+            {/* Saved Decks Section */}
+            {savedDecks.length > 0 && (
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Your Study Decks</h2>
+                <SavedDecks decks={savedDecks} onReview={handleStartReview} onDelete={handleDeleteDeck} />
+              </div>
+            )}
           </div>
         );
 
@@ -377,27 +445,92 @@ export default function Index() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">AI Study Buddy</h1>
-        <div className="flex items-center gap-4">
-          <div className="text-sm">
-            <span className="font-bold">🔥 {streak} day streak</span>
-            <span className="mx-2">|</span>
-            <span>✨ {xp} XP</span>
-          </div>
-          <button
-            onClick={() => setShowApp(false)}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            ← Назад до головної
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-violet-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-violet-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-violet-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
 
-      <main>
-        {renderCurrentPage()}
-      </main>
+      <div className="relative z-10">
+        {/* Enhanced Header */}
+        <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                    AI Study Buddy
+                  </h1>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="hidden md:flex items-center gap-3 ml-8">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Level {Math.floor(xp / 100) + 1}
+                    </span>
+                  </div>
+                  <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-300 progress-bar"
+                      style={{ '--progress-width': `${(xp % 100)}%` } as React.CSSProperties}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Enhanced Stats */}
+                <div className="hidden sm:flex items-center gap-4">
+                  <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800">
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                      {streak} day{streak !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/30 px-3 py-1.5 rounded-full border border-violet-200 dark:border-violet-800">
+                    <Sparkles className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+                      {xp} XP
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mobile Stats */}
+                <div className="sm:hidden flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-xs">
+                    <Flame className="w-3 h-3 text-amber-500" />
+                    <span className="font-bold">{streak}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs">
+                    <Sparkles className="w-3 h-3 text-violet-500" />
+                    <span>{xp}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowApp(false)}
+                  className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Назад до головної</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          {renderCurrentPage()}
+        </main>
+      </div>
     </div>
   );
 }

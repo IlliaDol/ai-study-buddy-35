@@ -111,7 +111,7 @@ export const StudyCard = ({
       <button
         type="button"
         onClick={handleFlip}
-        aria-pressed={isFlipped}
+        aria-pressed={isFlipped ? "true" : "false"}
         aria-label={isFlipped ? "Show question" : "Show answer"}
         className="flip-card w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring rounded"
       >

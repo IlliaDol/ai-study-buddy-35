@@ -46,8 +46,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section - Modern Glassmorphism style */}
       <div
-        className="relative bg-cover bg-center py-16 md:py-24 overflow-hidden"
-        style={{ backgroundImage: `url(${heroImage})` }}
+        className="relative bg-cover bg-center py-16 md:py-24 overflow-hidden hero-background"
       >
         {/* Background overlay with gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-violet-600/30 backdrop-blur-md" />
@@ -96,7 +95,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
 
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-slate-700 dark:text-slate-300">
               Master any topic or language with structured flashcards and quizzes.
-              <span className="text-primary font-semibold"> Powered by AI</span> when connected.
+              <span className="text-blue-600 dark:text-primary font-semibold"> Powered by AI</span> when connected.
             </p>
           </motion.div>
 
@@ -182,8 +181,8 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
       </div>
 
       {/* Cards Grid - Redesigned with animations */}
-      <div className="container mx-auto px-4 py-16 -mt-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-16 -mt-20 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Topic Learning */}
           <motion.div
             custom={0}
@@ -192,21 +191,32 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
             variants={cardVariants}
           >
             <Card
-              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              className="group overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white dark:bg-slate-800 border-0 h-full relative"
               onClick={onTopicLearning}
             >
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/20"></div>
-              <div className="p-8 flex flex-col items-center text-center h-full">
-                <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 shadow-md">
-                  <Brain size={36} className="text-blue-600 dark:text-blue-400" />
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 relative z-10"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                  <Brain size={36} className="text-blue-600 dark:text-blue-400 group-hover:animate-pulse" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.topicCard.title')}</h2>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {t('main.topicCard.title')}
+                </h2>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.topicCard.description')}</p>
                 <div className="mt-auto">
-                  <div className="inline-flex items-center justify-center px-5 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
-                    <Brain size={14} className="mr-2" /> Start Learning
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm group-hover:bg-blue-100 dark:group-hover:bg-blue-800/50 transition-colors">
+                    <Brain size={14} className="mr-2 group-hover:animate-bounce" /> Start Learning
                   </div>
                 </div>
+              </div>
+              
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400/30 rounded-full animate-ping"></div>
+                <div className="absolute bottom-8 left-6 w-1 h-1 bg-blue-300/40 rounded-full animate-pulse delay-1000"></div>
               </div>
             </Card>
           </motion.div>
@@ -219,21 +229,32 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
             variants={cardVariants}
           >
             <Card
-              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              className="group overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white dark:bg-slate-800 border-0 h-full relative"
               onClick={onCourseGeneration}
             >
-              <div className="p-2 bg-violet-50 dark:bg-violet-900/20"></div>
-              <div className="p-8 flex flex-col items-center text-center h-full">
-                <div className="h-20 w-20 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-6 shadow-md">
-                  <GraduationCap size={36} className="text-violet-600 dark:text-violet-400" />
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/20 dark:to-violet-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="p-2 bg-violet-50 dark:bg-violet-900/20 relative z-10"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                <div className="h-20 w-20 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                  <GraduationCap size={36} className="text-violet-600 dark:text-violet-400 group-hover:animate-pulse" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.courseCard.title')}</h2>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                  {t('main.courseCard.title')}
+                </h2>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.courseCard.description')}</p>
                 <div className="mt-auto">
-                  <div className="inline-flex items-center justify-center px-5 py-2 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-sm">
-                    <GraduationCap size={14} className="mr-2" /> Create Course
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-sm group-hover:bg-violet-100 dark:group-hover:bg-violet-800/50 transition-colors">
+                    <GraduationCap size={14} className="mr-2 group-hover:animate-bounce" /> Create Course
                   </div>
                 </div>
+              </div>
+              
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-violet-400/30 rounded-full animate-ping"></div>
+                <div className="absolute bottom-8 left-6 w-1 h-1 bg-violet-300/40 rounded-full animate-pulse delay-1000"></div>
               </div>
             </Card>
           </motion.div>
@@ -246,21 +267,32 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
             variants={cardVariants}
           >
             <Card
-              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              className="group overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white dark:bg-slate-800 border-0 h-full relative"
               onClick={onLanguageLearning}
             >
-              <div className="p-2 bg-teal-50 dark:bg-teal-900/20"></div>
-              <div className="p-8 flex flex-col items-center text-center h-full">
-                <div className="h-20 w-20 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-6 shadow-md">
-                  <Globe size={36} className="text-teal-600 dark:text-teal-400" />
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="p-2 bg-teal-50 dark:bg-teal-900/20 relative z-10"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                <div className="h-20 w-20 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                  <Globe size={36} className="text-teal-600 dark:text-teal-400 group-hover:animate-pulse" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.languageCard.title')}</h2>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                  {t('main.languageCard.title')}
+                </h2>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.languageCard.description')}</p>
                 <div className="mt-auto">
-                  <div className="inline-flex items-center justify-center px-5 py-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-sm">
-                    <Globe size={14} className="mr-2" /> Learn Languages
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-sm group-hover:bg-teal-100 dark:group-hover:bg-teal-800/50 transition-colors">
+                    <Globe size={14} className="mr-2 group-hover:animate-bounce" /> Learn Languages
                   </div>
                 </div>
+              </div>
+              
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-teal-400/30 rounded-full animate-ping"></div>
+                <div className="absolute bottom-8 left-6 w-1 h-1 bg-teal-300/40 rounded-full animate-pulse delay-1000"></div>
               </div>
             </Card>
           </motion.div>
