@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 import { MainNavigation } from "@/components/MainNavigation";
 import { TopicGenerator } from "@/components/TopicGenerator";
 import { CourseGenerator } from "@/components/CourseGenerator";
@@ -61,6 +62,7 @@ export default function Index() {
     setCurrentContent(content);
     setCurrentPage('study-mode-selector');
     gainXP(10); // XP for generating content
+    track('content_generated', { source: 'topic', flashcards: content.flashcards.length, quizQuestions: content.quizQuestions.length });
   };
 
   const handleCourseGenerated = (course: AICourseStructure) => {
@@ -80,6 +82,7 @@ export default function Index() {
     setCurrentContent(content);
     setCurrentPage('study-mode-selector');
     gainXP(20); // More XP for comprehensive course
+    track('course_generated', { title: course.title, modules: course.modules.length });
   };
 
   const handleLanguageContentGenerated = (language: string, content: Array<{ front: string; back: string }>) => {
@@ -88,6 +91,7 @@ export default function Index() {
     setLangCardIndex(0);
     setCurrentPage('language-flashcards');
     gainXP(10);
+    track('language_content_generated', { language, size: content.length });
   };
 
   // Handlers for LanguageLearning component props
@@ -112,6 +116,7 @@ export default function Index() {
   const handleModeSelect = (mode: 'flashcards' | 'quiz') => {
     setCurrentPage(mode);
     gainXP(5);
+    track('mode_select', { mode, topic: currentTopic });
   };
 
   const handleSaveDeck = () => {
@@ -126,6 +131,7 @@ export default function Index() {
       saveDeck(deck);
       setSavedDecks(getSavedDecks());
       gainXP(15);
+      track('deck_saved', { title: deck.title, flashcards: deck.flashcards.length, quiz: deck.quizQuestions.length });
     }
   };
 
@@ -133,12 +139,14 @@ export default function Index() {
     review(cardKey, grade);
     const xpMap = { again: 1, hard: 2, good: 3, easy: 4 };
     gainXP(xpMap[grade]);
+    track('flashcard_review', { cardKey, grade });
   };
 
   const handleQuizComplete = (score: number, total: number) => {
     const percentage = (score / total) * 100;
     const xp = Math.round(percentage / 10) + 5; // 5-15 XP based on performance
     gainXP(xp);
+    track('quiz_complete', { score, total, percentage });
   };
 
   const handleStartReview = (deck: SavedDeck) => {
@@ -148,6 +156,7 @@ export default function Index() {
       quizQuestions: deck.quizQuestions,
     });
     setCurrentPage('study-mode-selector');
+    track('review_start', { title: deck.title });
   };
 
   const handleDeleteDeck = (deckId: string) => {
@@ -155,6 +164,7 @@ export default function Index() {
     const { deleteDeck } = require('@/hooks/localStorage');
     deleteDeck(deckId);
     setSavedDecks(getSavedDecks());
+    track('deck_deleted', { deckId });
   };
 
   // Get due cards for review

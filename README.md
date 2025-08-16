@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# AI Study Buddy (Demo)
 
-## Project info
+AI-powered learning platform (demo). Generate study materials, flashcards, quizzes, and courses. Real AI (LLM/RAG) to be integrated next.
 
-**URL**: https://lovable.dev/projects/5c67a0cf-8740-40cd-bb7f-60fecd4ceffd
+## Stack
 
-## How can I edit this code?
+- Vite + React + TypeScript
+- Tailwind CSS + shadcn/ui (Radix)
+- React Router v6
+- PWA ready (service worker, manifest)
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+Requirements: Node 18+
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5c67a0cf-8740-40cd-bb7f-60fecd4ceffd) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+```bash
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Build/preview:
+```bash
+npm run build
+npm run preview
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment (optional)
 
-**Use GitHub Codespaces**
+Analytics and error tracking are optional. See `docs/ENV.md`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```env
+VITE_POSTHOG_KEY=
+VITE_POSTHOG_HOST=https://us.i.posthog.com
+VITE_SENTRY_DSN=
+```
 
-## What technologies are used for this project?
+If you plan to use them:
+```bash
+npm i posthog-js @sentry/browser
+```
 
-This project is built with:
+## Features
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Topic and language learning flows
+- Flashcards and quizzes with basic spaced-review hooks
+- Course generator (demo content)
+- Gamification (XP, streaks)
+- Accessible UI improvements (semantic buttons, aria-live status)
+- Basic analytics facade with safe no-ops
+- Offline support: `public/sw.js`, `public/site.webmanifest`
 
-## How can I deploy this project?
+## Accessibility
 
-Simply open [Lovable](https://lovable.dev/projects/5c67a0cf-8740-40cd-bb7f-60fecd4ceffd) and click on Share -> Publish.
+- Click handlers moved from containers to real buttons in `src/components/MainNavigation.tsx`.
+- `aria-live` region in `src/components/TopicCheckButton.tsx` to announce status.
+- Continued audit recommended for labels, roles, and focus styles.
 
-## Can I connect a custom domain to my Lovable project?
+## SEO & PWA
 
-Yes, you can!
+- SEO tags in `index.html` with canonical and structured data (update domain before prod)
+- `public/sitemap.xml` and `public/robots.txt` (staging locked down)
+- PWA manifest `public/site.webmanifest` and service worker `public/sw.js`
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Scripts
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `npm run dev` - start dev server
+- `npm run build` - production build
+- `npm run build:dev` - development-mode build
+- `npm run preview` - local preview
+- `npm run lint` - lint code
+
+## Dependencies
+
+Unused chart/toast wrappers and their packages have been removed.
+
+## Roadmap
+
+- Real AI backend (LLM, embeddings, RAG)
+- Auth + DB + server SRS logic
+- i18n infrastructure
+- Detailed analytics dashboards
+- SSR/SSG for SEO

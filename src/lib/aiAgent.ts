@@ -31,6 +31,43 @@ export interface QueryAnalysis {
 }
 
 class AICourseAgent {
+  private async callLLM(messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>): Promise<string | null> {
+    try {
+      // Provider + key from localStorage. Defaults:
+      // - provider: deepseek
+      // - key: AI_API_KEY (fallback to OPENAI_API_KEY for legacy)
+      const provider = (localStorage.getItem('AI_PROVIDER') || 'deepseek').toLowerCase();
+      const key = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '';
+      if (!key) return null;
+
+      const isDeepSeek = provider === 'deepseek';
+      const url = isDeepSeek
+        ? 'https://api.deepseek.com/chat/completions'
+        : 'https://api.openai.com/v1/chat/completions';
+      const model = isDeepSeek ? 'deepseek-reasoner' : 'gpt-4o-mini';
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          // DeepSeek supports the OpenAI compatible schema; response_format may be ignored but harmless
+          response_format: { type: 'json_object' },
+          messages,
+        }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const text: string | undefined = data?.choices?.[0]?.message?.content;
+      return text ?? null;
+    } catch {
+      return null;
+    }
+  }
   private analyzeQuery(query: string): QueryAnalysis {
     const lowerQuery = query.toLowerCase();
     
@@ -325,9 +362,27 @@ class AICourseAgent {
   }
   
   public async generateComprehensiveCourse(userQuery: string): Promise<AICourseStructure> {
-    // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    // Try real AI first
+    const system = `You are an assistant that creates structured learning courses as JSON.
+Return strictly a JSON object with keys: title, description, difficulty ('beginner'|'intermediate'|'advanced'), estimatedTime (string), prerequisites (string[]), learningObjectives (string[]), modules (array of modules). Each module has: title, description, concepts (string[]), flashcards (array of {front, back, difficulty:'easy'|'medium'|'hard'}), quizQuestions (array of {question, options, correctAnswer (index), explanation, difficulty}).`;
+    const user = `Create a comprehensive course for: ${userQuery}`;
+    const aiText = await this.callLLM([
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ]);
+
+    if (aiText) {
+      try {
+        const parsed = JSON.parse(aiText) as AICourseStructure;
+        // basic sanity checks
+        if (parsed?.modules && Array.isArray(parsed.modules) && parsed.title) {
+          return parsed;
+        }
+      } catch {}
+    }
+
+    // Fallback to deterministic generator
+    await new Promise(resolve => setTimeout(resolve, 600));
     const analysis = this.analyzeQuery(userQuery);
     return this.generateCourseStructure(analysis);
   }
@@ -341,21 +396,31 @@ class AICourseAgent {
       explanation?: string;
     }>;
   }> {
+    // Try real AI first
+    const system = `You generate short study materials as JSON with two keys: flashcards (array of {front, back}) and quizQuestions (array of {question, options (string[4]), correctAnswer (index), explanation}). Return only valid JSON.`;
+    const user = `Create quick study materials for: ${userQuery}`;
+    const aiText = await this.callLLM([
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ]);
+
+    if (aiText) {
+      try {
+        const parsed = JSON.parse(aiText) as {
+          flashcards: Array<{ front: string; back: string }>;
+          quizQuestions: Array<{ question: string; options: string[]; correctAnswer: number; explanation?: string }>;
+        };
+        if (Array.isArray(parsed?.flashcards) && Array.isArray(parsed?.quizQuestions)) {
+          return parsed;
+        }
+      } catch {}
+    }
+
+    // Fallback to deterministic content
     const analysis = this.analyzeQuery(userQuery);
     const concepts = this.generateConcepts(analysis, 1);
-    
-    const flashcards = this.generateFlashcards(analysis, concepts, 1).map(fc => ({
-      front: fc.front,
-      back: fc.back
-    }));
-    
-    const quizQuestions = this.generateQuizQuestions(analysis, concepts, 1).map(q => ({
-      question: q.question,
-      options: q.options,
-      correctAnswer: q.correctAnswer,
-      explanation: q.explanation
-    }));
-    
+    const flashcards = this.generateFlashcards(analysis, concepts, 1).map(fc => ({ front: fc.front, back: fc.back }));
+    const quizQuestions = this.generateQuizQuestions(analysis, concepts, 1).map(q => ({ question: q.question, options: q.options, correctAnswer: q.correctAnswer, explanation: q.explanation }));
     return { flashcards, quizQuestions };
   }
 }

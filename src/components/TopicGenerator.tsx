@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +26,7 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
   const [details, setDetails] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationMode, setGenerationMode] = useState<'quick' | 'comprehensive'>('quick');
+  const [countdown, setCountdown] = useState(0);
 
   const generateContent = async () => {
     if (!topic.trim()) {
@@ -39,42 +40,108 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
 
     setIsGenerating(true);
     
-    try {
-      const query = details ? `${topic}: ${details}` : topic;
+    // Check if using DeepSeek API
+    const hasAIKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY');
+    const provider = localStorage.getItem('AI_PROVIDER') || 'deepseek';
+    const isUsingAPI = hasAIKey && (provider === 'deepseek' || provider === 'openai');
+    
+    if (isUsingAPI) {
+      // Start 20-second countdown for API calls
+      setCountdown(20);
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
       
-      if (generationMode === 'comprehensive') {
-        const course = await aiAgent.generateComprehensiveCourse(query);
-        const firstModule = course.modules[0];
-        const content = {
-          flashcards: firstModule.flashcards.map(fc => ({ front: fc.front, back: fc.back })),
-          quizQuestions: firstModule.quizQuestions.map(q => ({
-            question: q.question,
-            options: q.options,
-            correctAnswer: q.correctAnswer,
-            explanation: q.explanation
-          }))
-        };
-        onContentGenerated(content);
+      const clearCountdown = () => {
+        clearInterval(countdownInterval);
+        setCountdown(0);
+      };
+      
+      try {
+        const query = details ? `${topic}: ${details}` : topic;
+        
+        if (generationMode === 'comprehensive') {
+          const course = await aiAgent.generateComprehensiveCourse(query);
+          clearCountdown();
+          const firstModule = course.modules[0];
+          const content = {
+            flashcards: firstModule.flashcards.map(fc => ({ front: fc.front, back: fc.back })),
+            quizQuestions: firstModule.quizQuestions.map(q => ({
+              question: q.question,
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+              explanation: q.explanation
+            }))
+          };
+          onContentGenerated(content);
+          toast({
+            title: "Comprehensive course generated!",
+            description: `${course.title} with ${course.modules.length} modules created. Starting with first module.`,
+          });
+        } else {
+          const content = await aiAgent.generateQuickContent(query);
+          clearCountdown();
+          onContentGenerated(content);
+          toast({
+            title: "Study materials generated!",
+            description: `Created ${content.flashcards.length} flashcards and ${content.quizQuestions.length} quiz questions.`,
+          });
+        }
+      } catch (error) {
+        clearCountdown();
         toast({
-          title: "Comprehensive course generated!",
-          description: `${course.title} with ${course.modules.length} modules created. Starting with first module.`,
+          title: "Generation failed",
+          description: "Failed to generate study materials. Please try again.",
+          variant: "destructive",
         });
-      } else {
-        const content = await aiAgent.generateQuickContent(query);
-        onContentGenerated(content);
-        toast({
-          title: "Study materials generated!",
-          description: `Created ${content.flashcards.length} flashcards and ${content.quizQuestions.length} quiz questions.`,
-        });
+      } finally {
+        setIsGenerating(false);
       }
-    } catch (error) {
-      toast({
-        title: "Generation failed",
-        description: "Failed to generate study materials. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
+    } else {
+      // Local generation - no countdown
+      try {
+        const query = details ? `${topic}: ${details}` : topic;
+        
+        if (generationMode === 'comprehensive') {
+          const course = await aiAgent.generateComprehensiveCourse(query);
+          const firstModule = course.modules[0];
+          const content = {
+            flashcards: firstModule.flashcards.map(fc => ({ front: fc.front, back: fc.back })),
+            quizQuestions: firstModule.quizQuestions.map(q => ({
+              question: q.question,
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+              explanation: q.explanation
+            }))
+          };
+          onContentGenerated(content);
+          toast({
+            title: "Comprehensive course generated!",
+            description: `${course.title} with ${course.modules.length} modules created. Starting with first module.`,
+          });
+        } else {
+          const content = await aiAgent.generateQuickContent(query);
+          onContentGenerated(content);
+          toast({
+            title: "Study materials generated!",
+            description: `Created ${content.flashcards.length} flashcards and ${content.quizQuestions.length} quiz questions.`,
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Generation failed",
+          description: "Failed to generate study materials. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -189,7 +256,7 @@ export const TopicGenerator = ({ onContentGenerated }: TopicGeneratorProps) => {
             {isGenerating ? (
               <>
                 <Sparkles className="mr-2 animate-spin" size={20} />
-                Generating...
+                {countdown > 0 ? `Generating... ${countdown}s` : 'Generating...'}
               </>
             ) : (
               <>

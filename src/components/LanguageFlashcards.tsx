@@ -58,7 +58,13 @@ export const LanguageFlashcards = ({
         </Button>
       </div>
 
-      <div className="flip-card" onClick={handleFlip}>
+      <button
+        type="button"
+        onClick={handleFlip}
+        aria-pressed={isFlipped}
+        aria-label={isFlipped ? "Show word" : "Show translation"}
+        className="flip-card w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring rounded"
+      >
         <div className={`flip-card-inner ${isFlipped ? "flipped" : ""}`}>
           <Card className="flip-card-front study-card p-8 h-80 flex items-center justify-center cursor-pointer">
             <div className="text-center">
@@ -74,7 +80,7 @@ export const LanguageFlashcards = ({
             </div>
           </Card>
         </div>
-      </div>
+      </button>
 
       <div className="flex justify-between items-center">
         <Button 

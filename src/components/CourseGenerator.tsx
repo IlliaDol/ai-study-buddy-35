@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ export const CourseGenerator = ({ onCourseGenerated }: CourseGeneratorProps) => 
   const [query, setQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCourse, setGeneratedCourse] = useState<AICourseStructure | null>(null);
+  const [countdown, setCountdown] = useState(0);
 
   const generateCourse = async () => {
     if (!query.trim()) {
@@ -28,22 +29,68 @@ export const CourseGenerator = ({ onCourseGenerated }: CourseGeneratorProps) => 
 
     setIsGenerating(true);
     
-    try {
-      const course = await aiAgent.generateComprehensiveCourse(query);
-      setGeneratedCourse(course);
-      onCourseGenerated(course);
-      toast({
-        title: "Course generated!",
-        description: `${course.title} with ${course.modules.length} modules created.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Generation failed",
-        description: "Failed to generate course. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
+    // Check if using DeepSeek API (has AI_API_KEY or AI_PROVIDER=deepseek)
+    const hasAIKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY');
+    const provider = localStorage.getItem('AI_PROVIDER') || 'deepseek';
+    const isUsingAPI = hasAIKey && (provider === 'deepseek' || provider === 'openai');
+    
+    if (isUsingAPI) {
+      // Start 20-second countdown for API calls
+      setCountdown(20);
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      // Clear countdown when generation completes
+      const clearCountdown = () => {
+        clearInterval(countdownInterval);
+        setCountdown(0);
+      };
+      
+      try {
+        const course = await aiAgent.generateComprehensiveCourse(query);
+        clearCountdown();
+        setGeneratedCourse(course);
+        onCourseGenerated(course);
+        toast({
+          title: "Course generated!",
+          description: `${course.title} with ${course.modules.length} modules created.`,
+        });
+      } catch (error) {
+        clearCountdown();
+        toast({
+          title: "Generation failed",
+          description: "Failed to generate course. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
+    } else {
+      // Local generation - no countdown needed
+      try {
+        const course = await aiAgent.generateComprehensiveCourse(query);
+        setGeneratedCourse(course);
+        onCourseGenerated(course);
+        toast({
+          title: "Course generated!",
+          description: `${course.title} with ${course.modules.length} modules created.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Generation failed",
+          description: "Failed to generate course. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -101,7 +148,7 @@ export const CourseGenerator = ({ onCourseGenerated }: CourseGeneratorProps) => 
               {isGenerating ? (
                 <>
                   <Sparkles className="mr-2 animate-spin" size={20} />
-                  Generating Course...
+                  {countdown > 0 ? `Generating Course... ${countdown}s` : 'Generating Course...'}
                 </>
               ) : (
                 <>

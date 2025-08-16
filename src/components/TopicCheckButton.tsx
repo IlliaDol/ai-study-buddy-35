@@ -86,7 +86,7 @@ export default function TopicCheckButton() {
       </button>
 
       {open && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div role="dialog" aria-modal="true" aria-describedby="topic-check-status" className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-xl rounded-2xl bg-zinc-900 shadow-xl ring-1 ring-white/10 text-white">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function TopicCheckButton() {
               </p>
 
               {status && (
-                <div className="rounded-xl bg-zinc-800/60 px-3 py-2 text-xs">{status}</div>
+                <div id="topic-check-status" role="status" aria-live="polite" aria-atomic="true" className="rounded-xl bg-zinc-800/60 px-3 py-2 text-xs">{status}</div>
               )}
             </div>
 
