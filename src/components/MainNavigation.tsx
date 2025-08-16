@@ -3,7 +3,9 @@ import { BookOpen, Globe, Brain, Sparkles, Flame, GraduationCap, KeyRound, Setti
 import heroImage from "@/assets/hero-bg.jpg";
 import { useGamification } from "@/hooks/useGamification";
 import { Settings } from "./Settings";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 interface MainNavigationProps {
   onTopicLearning: () => void;
@@ -12,184 +14,263 @@ interface MainNavigationProps {
 }
 
 export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGeneration }: MainNavigationProps) => {
+  const { t, i18n } = useTranslation();
   const { xp, streak } = useGamification();
   const [showSettings, setShowSettings] = useState(false);
   const provider = (typeof window !== 'undefined' && (localStorage.getItem('AI_PROVIDER') || (localStorage.getItem('OPENAI_API_KEY') ? 'openai' : ''))) || '';
   const aiKey = typeof window !== 'undefined' ? (localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '') : '';
   const hasAIKey = !!aiKey;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.3 + i * 0.1,
+        duration: 0.5
+      }
+    })
+  };
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div 
-        className="relative bg-cover bg-center py-20"
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Hero Section - Modern Glassmorphism style */}
+      <div
+        className="relative bg-cover bg-center py-16 md:py-24 overflow-hidden"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-glow/20 backdrop-blur-sm" />
-        <div className="relative container mx-auto px-4 text-center text-primary-foreground">
-          <h1 className="text-5xl md:text-6xl font-bold mb-2">
-            Learning Platform
-          </h1>
-          <div className="flex items-center justify-center gap-3 mb-5">
+        {/* Background overlay with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-violet-600/30 backdrop-blur-md" />
+
+        {/* Animated floating shapes */}
+        {mounted && (
+          <>
+            <motion.div
+              className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/20 backdrop-blur-xl"
+              animate={{
+                x: [0, 30, 0],
+                y: [0, -30, 0],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div
+              className="absolute bottom-1/4 right-1/3 w-48 h-48 rounded-full bg-violet-500/20 backdrop-blur-xl"
+              animate={{
+                x: [0, -20, 0],
+                y: [0, 20, 0],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </>
+        )}
+
+        <div className="relative container mx-auto px-4 text-center">
+          {/* Header Content */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
+              {t('app.title')}
+            </h1>
+
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-slate-700 dark:text-slate-300">
+              Master any topic or language with structured flashcards and quizzes.
+              <span className="text-primary font-semibold"> Powered by AI</span> when connected.
+            </p>
+          </motion.div>
+
+          {/* Control Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-wrap items-center justify-center gap-3 mb-10"
+          >
+            {/* Settings button */}
             <button
               type="button"
               onClick={() => setShowSettings(true)}
-              className="inline-flex items-center gap-2 text-sm bg-background/80 text-foreground border border-border rounded-full px-3 py-1 hover:bg-background"
-              aria-label="Open AI Settings"
+              className="inline-flex items-center gap-2 text-sm bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 hover:bg-white dark:hover:bg-slate-700 hover:shadow-md transition-all"
+              aria-label={t('nav.settings')}
             >
-              <SettingsIcon size={14} />
-              AI Settings
+              <SettingsIcon size={16} />
+              {t('nav.settings')}
             </button>
+
+            {/* Provider badge */}
             {hasAIKey ? (
-              <span className="text-xs bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-600/30 rounded-full px-2 py-0.5">
+              <span className="text-sm bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 rounded-full px-3 py-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
                 {provider || 'deepseek'}
               </span>
             ) : (
-              <span className="text-xs bg-yellow-300 text-black rounded-full px-2 py-0.5">No key set</span>
+              <span className="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 rounded-full px-3 py-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+                No API key
+              </span>
             )}
-          </div>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Master any topic or language with structured flashcards and quizzes. Powered by AI when connected.
-          </p>
-          <div className="inline-flex items-center gap-4 bg-background/30 backdrop-blur-md border border-border rounded-full px-5 py-2 text-sm">
-            <span className="flex items-center gap-2"><Flame size={16} className="text-primary" /> Streak: {streak}</span>
-            <span>•</span>
-            <span>XP: {xp}</span>
-          </div>
+
+            {/* Language selector - Redesigned */}
+            <div className="flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-sm">
+              {['en', 'uk', 'de'].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => changeLanguage(lang)}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                    i18n.language === lang
+                      ? 'bg-primary text-white'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Stats panel - Redesigned */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="inline-flex items-center gap-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-full px-6 py-3 shadow-lg"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                <Flame size={18} className="text-amber-500" />
+              </div>
+              <div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">Streak</div>
+                <div className="font-bold">{streak} {streak === 1 ? 'day' : 'days'}</div>
+              </div>
+            </div>
+
+            <div className="w-px h-10 bg-slate-200 dark:bg-slate-700"></div>
+
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center">
+                <Sparkles size={18} className="text-violet-500" />
+              </div>
+              <div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">Experience</div>
+                <div className="font-bold">{xp} XP</div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Choose Your Learning Path</h2>
-          <p className="text-muted-foreground text-lg">
-            Select the type of learning experience that suits your goals
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      {/* Cards Grid - Redesigned with animations */}
+      <div className="container mx-auto px-4 py-16 -mt-20 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Topic Learning */}
-          <Card 
-            className="study-card p-8 group hover:scale-105 transition-all duration-300"
-            aria-label="Topic Learning card"
+          <motion.div
+            custom={0}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
           >
-            <div className="text-center space-y-6">
-              <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto group-hover:bg-primary/20 transition-colors">
-                <BookOpen size={48} className="text-primary" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold mb-4">Topic Learning</h3>
-                <p className="text-muted-foreground mb-6">
-                  Generate study materials for any subject. Uses AI when connected.
-                </p>
-                <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
-                  <Sparkles size={16} />
-                  <span>{hasAIKey ? `AI enabled (${provider || 'deepseek'})` : 'Local generator active'}</span>
+            <Card
+              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              onClick={onTopicLearning}
+            >
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full">
+                <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 shadow-md">
+                  <Brain size={36} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.topicCard.title')}</h2>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.topicCard.description')}</p>
+                <div className="mt-auto">
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                    <Brain size={14} className="mr-2" /> Start Learning
+                  </div>
                 </div>
               </div>
-              <div className="pt-4">
-                <button type="button" onClick={onTopicLearning} className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors group-hover:bg-primary/90">
-                  Start Topic Learning
-                </button>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
 
-          {/* AI Course Generator */}
-          <Card 
-            className="study-card p-8 group hover:scale-105 transition-all duration-300"
-            aria-label="AI Course Generator card"
+          {/* Course Generator */}
+          <motion.div
+            custom={1}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
           >
-            <div className="text-center space-y-6">
-              <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto group-hover:bg-primary/20 transition-colors">
-                <GraduationCap size={48} className="text-primary" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold mb-4">AI Course Generator</h3>
-                <p className="text-muted-foreground mb-6">
-                  Create comprehensive courses with structured modules and progressive tests.
-                </p>
-                <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
-                  <Brain size={16} />
-                  <span>Structured Learning</span>
+            <Card
+              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              onClick={onCourseGeneration}
+            >
+              <div className="p-2 bg-violet-50 dark:bg-violet-900/20"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full">
+                <div className="h-20 w-20 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-6 shadow-md">
+                  <GraduationCap size={36} className="text-violet-600 dark:text-violet-400" />
+                </div>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.courseCard.title')}</h2>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.courseCard.description')}</p>
+                <div className="mt-auto">
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-sm">
+                    <GraduationCap size={14} className="mr-2" /> Create Course
+                  </div>
                 </div>
               </div>
-              <div className="pt-4">
-                <button type="button" onClick={onCourseGeneration} className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors group-hover:bg-primary/90">
-                  Generate Course
-                </button>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
 
           {/* Language Learning */}
-          <Card 
-            className="study-card p-8 group hover:scale-105 transition-all duration-300"
-            aria-label="Language Learning card"
+          <motion.div
+            custom={2}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
           >
-            <div className="text-center space-y-6">
-              <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto group-hover:bg-primary/20 transition-colors">
-                <Globe size={48} className="text-primary" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold mb-4">Language Learning</h3>
-                <p className="text-muted-foreground mb-6">
-                  Master languages with adaptive vocabulary practice and level-based content.
-                </p>
-                <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
-                  <BookOpen size={16} />
-                  <span>10+ Languages Available</span>
+            <Card
+              className="overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all cursor-pointer bg-white dark:bg-slate-800 border-0 h-full"
+              onClick={onLanguageLearning}
+            >
+              <div className="p-2 bg-teal-50 dark:bg-teal-900/20"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full">
+                <div className="h-20 w-20 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-6 shadow-md">
+                  <Globe size={36} className="text-teal-600 dark:text-teal-400" />
+                </div>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white">{t('main.languageCard.title')}</h2>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.languageCard.description')}</p>
+                <div className="mt-auto">
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-sm">
+                    <Globe size={14} className="mr-2" /> Learn Languages
+                  </div>
                 </div>
               </div>
-              <div className="pt-4">
-                <button type="button" onClick={onLanguageLearning} className="w-full bg-primary text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors group-hover:bg-primary/90">
-                  Start Language Learning
-                </button>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Features Section */}
-        <div className="mt-20">
-          <h3 className="text-2xl font-bold text-center mb-12">Powerful Learning Features</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <Card className="study-card p-6 text-center">
-              <BookOpen size={32} className="text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Interactive Flashcards</h4>
-              <p className="text-sm text-muted-foreground">
-                Smooth flip animations and intuitive navigation for effective memorization
-              </p>
             </Card>
-            
-            <Card className="study-card p-6 text-center">
-              <Brain size={32} className="text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Smart Quizzes</h4>
-              <p className="text-sm text-muted-foreground">
-                Multiple choice questions with instant feedback and detailed explanations
-              </p>
-            </Card>
-            
-            <Card className="study-card p-6 text-center">
-              <GraduationCap size={32} className="text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Structured Courses</h4>
-              <p className="text-sm text-muted-foreground">
-                Comprehensive learning paths with modules, objectives, and progress tracking
-              </p>
-            </Card>
-            
-            <Card className="study-card p-6 text-center">
-              <Sparkles size={32} className="text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">AI Assistant</h4>
-              <p className="text-sm text-muted-foreground">
-                {hasAIKey ? 'Connected to your AI key for smarter content.' : 'Set your AI key to enable smarter content.'}
-              </p>
-            </Card>
-          </div>
+          </motion.div>
         </div>
       </div>
-      
-      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings onClose={() => setShowSettings(false)} />
+      )}
     </div>
   );
 };

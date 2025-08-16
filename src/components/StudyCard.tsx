@@ -1,54 +1,75 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface StudyCardProps {
-  front: string;
-  back: string;
-  onNext: () => void;
-  onPrevious: () => void;
-  cardNumber: number;
-  totalCards: number;
+  cards: Array<{ front: string; back: string }>;
+  currentIndex: number;
+  setCurrentIndex: (index: number) => void;
+  onBack: () => void;
+  topic: string;
+  onReview?: (grade: 'again' | 'hard' | 'good' | 'easy') => void;
 }
 
 export const StudyCard = ({ 
-  front, 
-  back, 
-  onNext, 
-  onPrevious, 
-  cardNumber, 
-  totalCards 
+  cards,
+  currentIndex,
+  setCurrentIndex,
+  onBack,
+  topic,
+  onReview
 }: StudyCardProps) => {
+  const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
+  const card = cards[currentIndex];
+  const totalCards = cards.length;
+
+  if (!card) return null;
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
   const handleNext = () => {
-    setIsFlipped(false);
-    onNext();
+    if (currentIndex < totalCards - 1) {
+      setIsFlipped(false);
+      setCurrentIndex(currentIndex + 1);
+    }
   };
 
   const handlePrevious = () => {
-    setIsFlipped(false);
-    onPrevious();
+    if (currentIndex > 0) {
+      setIsFlipped(false);
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleReview = (grade: 'again' | 'hard' | 'good' | 'easy') => {
+    if (onReview) {
+      onReview(grade);
+    }
+
+    // Always move to the next card after reviewing
+    handleNext();
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between text-muted-foreground">
-        <span>{cardNumber} of {totalCards}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleFlip}
-          className="gap-2"
-        >
-          <RotateCcw size={16} />
-          Flip
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onBack} className="mr-1">
+            <ArrowLeft size={16} />
+          </Button>
+          <h2 className="font-semibold text-lg">
+            {t('flashcards.title', { topic })}
+          </h2>
+        </div>
+
+        <span className="text-sm text-muted-foreground">
+          {t('flashcards.card', { current: currentIndex + 1, total: totalCards })}
+        </span>
       </div>
 
       <button
@@ -61,48 +82,88 @@ export const StudyCard = ({
         <div className={`flip-card-inner ${isFlipped ? "flipped" : ""}`}>
           <Card className="flip-card-front study-card p-8 h-80 flex items-center justify-center cursor-pointer">
             <div className="text-center">
-              <p className="text-xl font-medium leading-relaxed">{front}</p>
-              <p className="text-muted-foreground mt-4 text-sm">Click to reveal answer</p>
+              <p className="text-xl font-medium leading-relaxed">{card.front}</p>
+              <p className="text-muted-foreground mt-4 text-sm">{t('flashcards.tap')}</p>
             </div>
           </Card>
           
           <Card className="flip-card-back study-card p-8 h-80 flex items-center justify-center cursor-pointer bg-accent">
             <div className="text-center">
-              <p className="text-xl font-medium leading-relaxed text-accent-foreground">{back}</p>
+              <p className="text-xl font-medium leading-relaxed text-accent-foreground">{card.back}</p>
             </div>
           </Card>
         </div>
       </button>
 
-      <div className="flex justify-between items-center">
-        <Button 
-          variant="outline" 
-          onClick={handlePrevious}
-          disabled={cardNumber === 1}
-        >
-          Previous
-        </Button>
-        
-        <div className="flex gap-2">
-          {Array.from({ length: totalCards }).map((_, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index + 1 === cardNumber 
-                  ? "bg-primary" 
-                  : "bg-muted"
-              }`}
-            />
-          ))}
+      {isFlipped && onReview ? (
+        // SRS review buttons when flipped
+        <div className="grid grid-cols-4 gap-2">
+          <Button
+            variant="outline"
+            className="bg-red-50 hover:bg-red-100 border-red-200"
+            onClick={() => handleReview('again')}
+          >
+            {t('flashcards.again')}
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-orange-50 hover:bg-orange-100 border-orange-200"
+            onClick={() => handleReview('hard')}
+          >
+            {t('flashcards.hard')}
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-green-50 hover:bg-green-100 border-green-200"
+            onClick={() => handleReview('good')}
+          >
+            {t('flashcards.good')}
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-blue-50 hover:bg-blue-100 border-blue-200"
+            onClick={() => handleReview('easy')}
+          >
+            {t('flashcards.easy')}
+          </Button>
         </div>
+      ) : (
+        // Standard navigation buttons
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+          >
+            {t('flashcards.previous')}
+          </Button>
 
-        <Button 
-          onClick={handleNext}
-          disabled={cardNumber === totalCards}
-        >
-          Next
-        </Button>
-      </div>
+          <div className="flex gap-1">
+            {totalCards <= 10 && Array.from({ length: totalCards }).map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentIndex
+                    ? "bg-primary"
+                    : "bg-muted"
+                }`}
+              />
+            ))}
+            {totalCards > 10 && (
+              <span className="text-xs text-muted-foreground">
+                {currentIndex + 1} / {totalCards}
+              </span>
+            )}
+          </div>
+
+          <Button
+            onClick={handleNext}
+            disabled={currentIndex === totalCards - 1}
+          >
+            {t('flashcards.next')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

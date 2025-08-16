@@ -2,6 +2,10 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { initAnalytics } from './lib/analytics'
+// Import i18n
+import './i18n'
+// Import DeepSeek configuration
+import './config/deepseekConfig'
 
 createRoot(document.getElementById("root")!).render(<App />);
 
@@ -19,3 +23,6 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {/* ignore */});
   });
 }
+
+// Define proxy flag for API calls (will be true in production environment)
+(window as any).__USE_PROXY__ = Boolean((import.meta as any).env?.VITE_USE_API_PROXY === 'true');

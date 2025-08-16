@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface QuizQuestion {
   question: string;
@@ -12,14 +13,18 @@ interface QuizQuestion {
 
 interface QuizModeProps {
   questions: QuizQuestion[];
-  onComplete: (score: number) => void;
+  topic: string;
+  onComplete: (score: number, total: number) => void;
+  onBack: () => void;
 }
 
-export const QuizMode = ({ questions, onComplete }: QuizModeProps) => {
+export const QuizMode = ({ questions, topic, onComplete, onBack }: QuizModeProps) => {
+  const { t } = useTranslation();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   const handleAnswerSelect = (optionIndex: number) => {
     if (showResult) return;
@@ -37,72 +42,131 @@ export const QuizMode = ({ questions, onComplete }: QuizModeProps) => {
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
-      onComplete(score + (selectedAnswer === questions[currentQuestion].correctAnswer ? 1 : 0));
+      const finalScore = score + (selectedAnswer === questions[currentQuestion].correctAnswer ? 1 : 0);
+      setQuizCompleted(true);
+      onComplete(finalScore, questions.length);
     }
   };
+
+  const handleRestart = () => {
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setQuizCompleted(false);
+  };
+
+  if (questions.length === 0) {
+    return (
+      <Card className="p-6 text-center">
+        <p>{t('quiz.noQuestions')}</p>
+        <Button onClick={onBack} className="mt-4">
+          {t('quiz.back')}
+        </Button>
+      </Card>
+    );
+  }
 
   const question = questions[currentQuestion];
   const isCorrect = selectedAnswer === question.correctAnswer;
 
+  if (quizCompleted) {
+    const finalScore = score + (selectedAnswer === questions[questions.length - 1].correctAnswer ? 1 : 0);
+    return (
+      <Card className="p-6">
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" size="sm" onClick={onBack} className="mr-2">
+            <ArrowLeft size={16} />
+          </Button>
+          <h2 className="text-xl font-semibold">{t('quiz.results')}</h2>
+        </div>
+
+        <div className="text-center py-8">
+          <h3 className="text-2xl font-bold mb-2">
+            {finalScore === questions.length
+              ? t('quiz.perfectScore')
+              : t('quiz.score', { score: finalScore, total: questions.length })}
+          </h3>
+          <p className="text-muted-foreground mb-6">
+            {finalScore / questions.length >= 0.7
+              ? t('quiz.goodJob')
+              : t('quiz.keepPracticing')}
+          </p>
+
+          <div className="flex justify-center gap-4 mt-8">
+            <Button variant="outline" onClick={handleRestart}>
+              {t('quiz.restart')}
+            </Button>
+            <Button onClick={onBack}>
+              {t('quiz.back')}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between text-muted-foreground">
-        <span>Question {currentQuestion + 1} of {questions.length}</span>
-        <span>Score: {score}/{questions.length}</span>
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Button variant="ghost" size="sm" onClick={onBack} className="mr-2">
+            <ArrowLeft size={16} />
+          </Button>
+          <h2 className="text-xl font-semibold">{t('quiz.title', { topic })}</h2>
+        </div>
+        <span className="text-sm text-muted-foreground">
+          {t('quiz.question', { current: currentQuestion + 1, total: questions.length })}
+        </span>
       </div>
 
-      <Card className="study-card p-8">
-        <h3 className="text-xl font-semibold mb-6">{question.question}</h3>
-        
+      <div className="space-y-6">
+        <h3 className="text-xl font-medium">{question.question}</h3>
+
         <div className="space-y-3">
           {question.options.map((option, index) => (
-            <Button
+            <button
               key={index}
-              variant="outline"
-              className={`w-full text-left justify-start p-4 h-auto ${
-                showResult
-                  ? index === question.correctAnswer
-                    ? "bg-success/10 border-success text-success-foreground"
-                    : index === selectedAnswer && index !== question.correctAnswer
-                    ? "bg-destructive/10 border-destructive text-destructive-foreground"
-                    : ""
-                  : selectedAnswer === index
-                  ? "bg-primary/10 border-primary"
-                  : ""
-              }`}
               onClick={() => handleAnswerSelect(index)}
               disabled={showResult}
+              className={`w-full p-4 text-left rounded-md border ${
+                showResult && index === question.correctAnswer
+                  ? "bg-green-50 border-green-300"
+                  : showResult && index === selectedAnswer && index !== question.correctAnswer
+                  ? "bg-red-50 border-red-300"
+                  : selectedAnswer === index
+                  ? "bg-primary/5 border-primary"
+                  : "hover:bg-muted/30 border-border"
+              }`}
             >
               <div className="flex items-center gap-3">
-                {showResult && (
-                  index === question.correctAnswer ? (
-                    <CheckCircle size={20} className="text-success" />
-                  ) : index === selectedAnswer && index !== question.correctAnswer ? (
-                    <XCircle size={20} className="text-destructive" />
-                  ) : null
+                {showResult && index === question.correctAnswer && (
+                  <CheckCircle className="text-green-600 h-5 w-5 flex-shrink-0" />
+                )}
+                {showResult && index === selectedAnswer && index !== question.correctAnswer && (
+                  <XCircle className="text-red-600 h-5 w-5 flex-shrink-0" />
                 )}
                 <span>{option}</span>
               </div>
-            </Button>
+            </button>
           ))}
         </div>
 
-        {showResult && question.explanation && (
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Explanation:</strong> {question.explanation}
+        {showResult && (
+          <div className={`p-4 rounded-md ${isCorrect ? "bg-green-50" : "bg-red-50"}`}>
+            <p className="font-medium mb-1">
+              {isCorrect ? t('quiz.correct') : t('quiz.incorrect', { answer: question.options[question.correctAnswer] })}
             </p>
+            {question.explanation && <p className="text-muted-foreground text-sm">{question.explanation}</p>}
           </div>
         )}
-      </Card>
 
-      {showResult && (
-        <div className="text-center">
-          <Button onClick={handleNext} size="lg">
-            {currentQuestion < questions.length - 1 ? "Next Question" : "Finish Quiz"}
+        {showResult && (
+          <Button className="w-full" onClick={handleNext}>
+            {currentQuestion < questions.length - 1 ? t('quiz.next') : t('quiz.submit')}
           </Button>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Card>
   );
 };
