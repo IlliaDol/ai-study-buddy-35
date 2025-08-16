@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Brain, Sparkles, X, Loader2 } from "lucide-react";
+import { Brain, Sparkles, X, Loader2, ListChecks } from "lucide-react";
+import { generateCourseFactory } from "../services/courseFactory";
+import type { Syllabus } from "../schemas/course";
 
 /**
  * AI Course Generator with DeepSeek Reasoner integration placeholder
@@ -10,6 +12,8 @@ export default function AICourseGeneratorButton() {
   const [topic, setTopic] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<null | string>(null);
+  const [statuses, setStatuses] = useState<string[]>([]);
+  const [syllabus, setSyllabus] = useState<Syllabus | null>(null);
 
   // Close modal on Esc
   useEffect(() => {
@@ -20,27 +24,30 @@ export default function AICourseGeneratorButton() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Future DeepSeek Reasoner agent placeholder
+  // Minimal stubbed pipeline call
   async function handleGenerate() {
     if (!topic.trim()) return;
     setBusy(true);
-    setStatus("Підготовка агента… (DeepSeek Reasoner)");
-    
-    // TODO: Real pipeline will include:
-    // 1) Analyze thousands of courses and methodologies
-    // 2) Call /api/course/generate -> DeepSeek Reasoner
-    // 3) Generate comprehensive package: modules, lessons, tests, tables/files, final exam
-    // 4) Structure like Coursera/Udemy: learn -> practice -> test -> learn -> final test
-    
-    await new Promise((r) => setTimeout(r, 1500)); // Simulate "deep thinking"
-    setStatus("Аналізую тисячі курсів та методик навчання...");
-    await new Promise((r) => setTimeout(r, 1200));
-    setStatus("Створюю структуру курсу за принципами таксономії Блума...");
-    await new Promise((r) => setTimeout(r, 1000));
-    setStatus("Генерую модулі, уроки, тести та додаткові матеріали...");
-    await new Promise((r) => setTimeout(r, 1200));
-    setStatus("Демо-режим: агент під'єднано. Повну генерацію підключимо наступним кроком.");
-    setBusy(false);
+    setStatuses([]);
+    setSyllabus(null);
+    setStatus("Запускаю конвеєр контенту…");
+
+    try {
+      const result = await generateCourseFactory({
+        topic: topic.trim(),
+        language: "uk",
+        level: "beginner",
+        goals: [],
+      });
+      setStatuses(result.statuses);
+      setSyllabus(result.syllabus);
+      setStatus("Готово: силлабус згенеровано (демо)");
+    } catch (e: any) {
+      console.error(e);
+      setStatus(e?.message || "Помилка генерації");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -97,6 +104,39 @@ export default function AICourseGeneratorButton() {
               {status && (
                 <div className="rounded-xl bg-zinc-800/60 px-3 py-2 text-xs">
                   {status}
+                </div>
+              )}
+
+              {statuses.length > 0 && (
+                <div className="rounded-xl bg-zinc-800/40 px-3 py-2 text-xs space-y-1">
+                  <div className="flex items-center gap-2 font-medium text-zinc-300">
+                    <ListChecks className="h-3.5 w-3.5" /> Етапи конвеєра
+                  </div>
+                  <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
+                    {statuses.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {syllabus && (
+                <div className="rounded-xl bg-zinc-800/30 px-3 py-2 text-xs">
+                  <div className="font-semibold text-zinc-200">Силлабус (демо)</div>
+                  <div className="text-zinc-300 mt-1">{syllabus.title}</div>
+                  <div className="mt-2 grid grid-cols-1 gap-2">
+                    {syllabus.modules.slice(0, 2).map((m, idx) => (
+                      <div key={idx} className="rounded-lg bg-zinc-900/40 p-2">
+                        <div className="font-medium text-zinc-200">{m.title}</div>
+                        <div className="text-zinc-400">Уроків: {m.lessons.length}</div>
+                        {m.lessons.slice(0, 1).map((l) => (
+                          <div key={l.id} className="mt-1">
+                            <div className="text-zinc-300">• {l.title}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

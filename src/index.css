@@ -108,7 +108,9 @@
     transform-style: preserve-3d;
   }
 
-  .flip-card.flipped .flip-card-inner {
+  /* Support flipping when 'flipped' is applied on either container or inner */
+  .flip-card.flipped .flip-card-inner,
+  .flip-card-inner.flipped {
     transform: rotateY(180deg);
   }
 

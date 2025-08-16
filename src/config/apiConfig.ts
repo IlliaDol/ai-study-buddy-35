@@ -16,7 +16,8 @@ export const defaultAPIConfig: Omit<APIConfig, 'apiKey'> = {
   baseUrl: 'https://api.deepseek.com/chat/completions',
   model: 'deepseek-reasoner',
   temperature: 0.2,
-  maxTokens: 2000,
+  // Keep responses concise to avoid timeouts
+  maxTokens: 800,
 };
 
 // OpenAI configuration
@@ -25,7 +26,8 @@ export const openaiConfig: Omit<APIConfig, 'apiKey'> = {
   baseUrl: 'https://api.openai.com/v1/chat/completions',
   model: 'gpt-4o-mini',
   temperature: 0.2,
-  maxTokens: 2000,
+  // Keep responses concise to avoid timeouts
+  maxTokens: 800,
 };
 
 // API Keys - Replace with your actual keys
@@ -134,9 +136,9 @@ export function getProviderDisplayName(provider: 'deepseek' | 'openai'): string 
 
 // API timeout configuration
 export const API_TIMEOUTS = {
-  DEFAULT: 20000, // 20 seconds
-  QUICK: 10000,   // 10 seconds for quick operations
-  LONG: 60000,    // 60 seconds for complex operations
+  DEFAULT: 45000, // 45 seconds (reduce deadline_exceeded)
+  QUICK: 15000,   // 15 seconds for quick operations
+  LONG: 120000,    // 120 seconds for complex operations
 };
 
 // Rate limiting configuration
