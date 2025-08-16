@@ -58,7 +58,7 @@ export default function CustomVocabularyButton() {
     return terms.map(t => ({
       id: uid(),
       term: t,
-      translation: "— переклад (демо) —", // Here we'll return the most used equivalent
+      translation: "— тимчасовий переклад —", // Placeholder; real translation will come from dictionaries/AI
       pos: "",
       example: "",
       note: ""
@@ -79,7 +79,7 @@ export default function CustomVocabularyButton() {
     const translated = await translateTerms(dedup);
     setItems(translated);
     setBusy(false);
-    setStatus("Демо: додано переклади-заглушки. Реальні підключимо до словників.");
+    setStatus("Тимчасово: додано переклади-заглушки. Реальні підключимо до словників/AI.");
   }
 
   function handleSaveToDeck() {
@@ -236,7 +236,7 @@ export default function CustomVocabularyButton() {
             {/* footer */}
             <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-white/10">
               <div className="text-[11px] text-zinc-400">
-                Демо: реальний переклад отримаємо з авторитетних словників/корпусів (Cambridge/Duden/Collins/Reverso) через бекенд.
+                Експериментально: реальний переклад отримаємо з авторитетних словників/корпусів (Cambridge/Duden/Collins/Reverso) через бекенд.
               </div>
               <button onClick={()=>setOpen(false)} className="rounded-xl px-3 py-2 text-sm hover:bg-white/5">Готово</button>
             </div>

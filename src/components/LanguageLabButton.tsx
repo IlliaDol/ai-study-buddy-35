@@ -72,7 +72,7 @@ export default function LanguageLabButton() {
     }
     await new Promise(r=>setTimeout(r,900));
 
-    setStatus("Демо-режим: сесію ініціалізовано. Підключимо реального агента на наступному кроці.");
+    setStatus("Експериментально: сесію ініціалізовано. Реального агента підключимо наступним кроком.");
     setBusy(false);
   }
 
@@ -225,7 +225,7 @@ export default function LanguageLabButton() {
             <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-white/10">
               <div className="text-[11px] text-zinc-400 flex items-center gap-1">
                 <Brain className="h-3 w-3" />
-                Демо • LanguageLab Agent (під'єднаємо Reasoner/бекенд)
+                Експериментально • LanguageLab Agent (Reasoner/бекенд на підключенні)
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={()=>setOpen(false)} className="rounded-xl px-3 py-2 text-sm hover:bg-white/5">Скасувати</button>

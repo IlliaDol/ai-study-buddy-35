@@ -1,6 +1,8 @@
-# AI Study Buddy (Demo)
+# AI Study Buddy
 
-AI-powered learning platform (demo). Generate study materials, flashcards, quizzes, and courses. Real AI (LLM/RAG) to be integrated next.
+AI-powered learning platform. Generate study materials, flashcards, quizzes, and courses.
+
+Now integrated with DeepSeek Reasoner as the default AI provider, including a visible countdown during API calls.
 
 ## Stack
 
@@ -39,11 +41,21 @@ If you plan to use them:
 npm i posthog-js @sentry/browser
 ```
 
+## AI Provider & Keys
+
+- Default provider: DeepSeek Reasoner (`deepseek-reasoner`).
+- Configure your key via the in-app Settings modal (Main nav → AI Settings). Keys are stored locally in `localStorage` for development.
+- Config utilities are in `src/config/apiConfig.ts`.
+
+## Countdown During Generation
+
+- When generating with an API provider, the UI shows a 20-second countdown on buttons in `src/components/CourseGenerator.tsx` and `src/components/TopicGenerator.tsx` to set expectations for response time.
+
 ## Features
 
 - Topic and language learning flows
 - Flashcards and quizzes with basic spaced-review hooks
-- Course generator (demo content)
+- Course generator (DeepSeek-powered)
 - Gamification (XP, streaks)
 - Accessible UI improvements (semantic buttons, aria-live status)
 - Basic analytics facade with safe no-ops
@@ -75,7 +87,8 @@ Unused chart/toast wrappers and their packages have been removed.
 
 ## Roadmap
 
-- Real AI backend (LLM, embeddings, RAG)
+- Optional serverless proxy for API keys (move keys server-side)
+- Embeddings and RAG for retrieval-augmented content
 - Auth + DB + server SRS logic
 - i18n infrastructure
 - Detailed analytics dashboards
