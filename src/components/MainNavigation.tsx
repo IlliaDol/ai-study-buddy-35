@@ -51,13 +51,12 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
           >
             <div className="text-center space-y-6">
               <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto group-hover:bg-primary/20 transition-colors">
-                <Brain size={48} className="text-primary" />
+                <BookOpen size={48} className="text-primary" />
               </div>
               <div>
                 <h3 className="text-2xl font-semibold mb-4">Topic Learning</h3>
                 <p className="text-muted-foreground mb-6">
-                  Generate study materials for any subject. From science and history to 
-                  programming and literature - AI creates personalized flashcards and quizzes.
+                  Generate study materials for any subject with AI-powered flashcards and quizzes.
                 </p>
                 <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                   <Sparkles size={16} />
@@ -72,7 +71,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
             </div>
           </Card>
 
-          {/* Course Generation */}
+          {/* AI Course Generator */}
           <Card 
             className="study-card p-8 cursor-pointer group hover:scale-105 transition-all duration-300"
             onClick={onCourseGeneration}
@@ -84,8 +83,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
               <div>
                 <h3 className="text-2xl font-semibold mb-4">AI Course Generator</h3>
                 <p className="text-muted-foreground mb-6">
-                  Create comprehensive courses with structured modules, learning objectives, 
-                  and progressive difficulty levels tailored to your learning goals.
+                  Create comprehensive courses with structured modules and progressive tests.
                 </p>
                 <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                   <Brain size={16} />
@@ -112,8 +110,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
               <div>
                 <h3 className="text-2xl font-semibold mb-4">Language Learning</h3>
                 <p className="text-muted-foreground mb-6">
-                  Master vocabulary in multiple languages. Take level assessments, 
-                  add custom words, and study with adaptive learning techniques.
+                  Master languages with adaptive vocabulary practice and level-based content.
                 </p>
                 <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                   <BookOpen size={16} />

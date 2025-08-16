@@ -37,6 +37,8 @@ export default function Index() {
   const [currentCourse, setCurrentCourse] = useState<AICourseStructure | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState("");
   const [currentLanguageContent, setCurrentLanguageContent] = useState<Array<{ front: string; back: string }>>([]);
+  const [studyCardIndex, setStudyCardIndex] = useState(0);
+  const [langCardIndex, setLangCardIndex] = useState(0);
   
   const { gainXP } = useGamification();
   const { review, dueCards } = useSRS();
@@ -83,8 +85,28 @@ export default function Index() {
   const handleLanguageContentGenerated = (language: string, content: Array<{ front: string; back: string }>) => {
     setCurrentLanguage(language);
     setCurrentLanguageContent(content);
+    setLangCardIndex(0);
     setCurrentPage('language-flashcards');
     gainXP(10);
+  };
+
+  // Handlers for LanguageLearning component props
+  const handleLanguageSelect = (language: string, level: string) => {
+    // Demo content generation based on language & level
+    const size = 10;
+    const content = Array.from({ length: size }).map((_, i) => ({
+      front: `${language.toUpperCase()} Term ${i + 1}`,
+      back: `Translation ${i + 1}`,
+    }));
+    handleLanguageContentGenerated(language, content);
+  };
+  const handleLevelTest = (_language: string) => {
+    // Placeholder: return to main for now
+    setCurrentPage('main');
+  };
+  const handleCustomVocab = (_language: string) => {
+    // Placeholder: return to language-learning for now
+    setCurrentPage('language-learning');
   };
 
   const handleModeSelect = (mode: 'flashcards' | 'quiz') => {
@@ -159,6 +181,7 @@ export default function Index() {
         <div>
           <MainNavigation 
             onTopicLearning={handleTopicLearning}
+            onCourseGeneration={handleCourseGeneration}
             onLanguageLearning={handleLanguageLearning}
           />
           
@@ -250,7 +273,11 @@ export default function Index() {
       )}
 
       {currentPage === 'language-learning' && (
-        <LanguageLearning onContentGenerated={handleLanguageContentGenerated} />
+        <LanguageLearning 
+          onLanguageSelect={handleLanguageSelect}
+          onLevelTest={handleLevelTest}
+          onCustomVocab={handleCustomVocab}
+        />
       )}
 
       {currentPage === 'study-mode-selector' && currentContent && (
@@ -263,28 +290,55 @@ export default function Index() {
       )}
 
       {currentPage === 'flashcards' && currentContent && (
-        <StudyCard
-          flashcards={currentContent.flashcards}
-          onBack={() => setCurrentPage('study-mode-selector')}
-          onReview={handleFlashcardReview}
-        />
+        <div className="container mx-auto px-4 py-8 space-y-6">
+          <button
+            onClick={() => setCurrentPage('study-mode-selector')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← Back
+          </button>
+          <StudyCard
+            front={currentContent.flashcards[studyCardIndex]?.front}
+            back={currentContent.flashcards[studyCardIndex]?.back}
+            cardNumber={studyCardIndex + 1}
+            totalCards={currentContent.flashcards.length}
+            onNext={() => setStudyCardIndex((i) => Math.min(i + 1, currentContent.flashcards.length - 1))}
+            onPrevious={() => setStudyCardIndex((i) => Math.max(i - 1, 0))}
+          />
+        </div>
       )}
 
       {currentPage === 'quiz' && currentContent && (
-        <QuizMode
-          questions={currentContent.quizQuestions}
-          onBack={() => setCurrentPage('study-mode-selector')}
-          onComplete={handleQuizComplete}
-        />
+        <div className="container mx-auto px-4 py-8 space-y-6">
+          <button
+            onClick={() => setCurrentPage('study-mode-selector')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← Back
+          </button>
+          <QuizMode
+            questions={currentContent.quizQuestions}
+            onComplete={(score) => handleQuizComplete(score, currentContent.quizQuestions.length)}
+          />
+        </div>
       )}
 
       {currentPage === 'language-flashcards' && currentLanguageContent.length > 0 && (
-        <LanguageFlashcards
-          flashcards={currentLanguageContent}
-          language={currentLanguage}
-          onBack={() => setCurrentPage('language-learning')}
-          onReview={handleFlashcardReview}
-        />
+        <div className="container mx-auto px-4 py-8 space-y-6">
+          <button
+            onClick={() => setCurrentPage('language-learning')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← Back
+          </button>
+          <LanguageFlashcards
+            vocabulary={currentLanguageContent.map((c, i) => ({ id: `${i}`, word: c.front, translation: c.back }))}
+            cardNumber={langCardIndex + 1}
+            totalCards={currentLanguageContent.length}
+            onNext={() => setLangCardIndex((i) => Math.min(i + 1, currentLanguageContent.length - 1))}
+            onPrevious={() => setLangCardIndex((i) => Math.max(i - 1, 0))}
+          />
+        </div>
       )}
     </div>
   );
