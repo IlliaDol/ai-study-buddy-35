@@ -182,7 +182,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
 
       {/* Cards Grid - Redesigned with animations */}
       <div className="max-w-7xl mx-auto px-6 py-16 -mt-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Topic Learning */}
           <motion.div
             custom={0}
@@ -293,6 +293,82 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-4 right-4 w-2 h-2 bg-teal-400/30 rounded-full animate-ping"></div>
                 <div className="absolute bottom-8 left-6 w-1 h-1 bg-teal-300/40 rounded-full animate-pulse delay-1000"></div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Analytics Dashboard */}
+          <motion.div
+            custom={3}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+          >
+            <Card
+              className="group overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white dark:bg-slate-800 border-0 h-full relative"
+              onClick={() => window.location.href = '/analytics'}
+            >
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 relative z-10"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                <div className="h-20 w-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp size={36} className="text-emerald-600 dark:text-emerald-400 group-hover:animate-pulse" />
+                </div>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  Analytics Dashboard
+                </h2>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">Track your learning progress with detailed statistics and insights</p>
+                <div className="mt-auto">
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-sm group-hover:bg-emerald-100 dark:group-hover:bg-emerald-800/50 transition-colors">
+                    <TrendingUp size={14} className="mr-2 group-hover:animate-bounce" /> View Analytics
+                  </div>
+                </div>
+              </div>
+              
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-emerald-400/30 rounded-full animate-ping"></div>
+                <div className="absolute bottom-8 left-6 w-1 h-1 bg-emerald-300/40 rounded-full animate-pulse delay-1000"></div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Social Features */}
+          <motion.div
+            custom={4}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+          >
+            <Card
+              className="group overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-white dark:bg-slate-800 border-0 h-full relative"
+              onClick={() => window.location.href = '/social'}
+            >
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="p-2 bg-pink-50 dark:bg-pink-900/20 relative z-10"></div>
+              <div className="p-8 flex flex-col items-center text-center h-full relative z-10">
+                <div className="h-20 w-20 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
+                  <Users size={36} className="text-pink-600 dark:text-pink-400 group-hover:animate-pulse" />
+                </div>
+                <h2 className="text-2xl font-bold mb-3 text-slate-800 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                  Learn Together
+                </h2>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">Join study groups, compete with friends, and track progress together</p>
+                <div className="mt-auto">
+                  <div className="inline-flex items-center justify-center px-5 py-2 bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full text-sm group-hover:bg-pink-100 dark:group-hover:bg-pink-800/50 transition-colors">
+                    <Users size={14} className="mr-2 group-hover:animate-bounce" /> Join Social
+                  </div>
+                </div>
+              </div>
+              
+              {/* Floating particles effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-pink-400/30 rounded-full animate-ping"></div>
+                <div className="absolute bottom-8 left-6 w-1 h-1 bg-pink-300/40 rounded-full animate-pulse delay-1000"></div>
               </div>
             </Card>
           </motion.div>

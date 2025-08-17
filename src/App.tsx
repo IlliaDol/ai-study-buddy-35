@@ -8,6 +8,8 @@ import CoursePlayer from './pages/CoursePlayer'
 import CourseComplete from './pages/CourseComplete'
 import LanguageLab from './pages/LanguageLab'
 import QuickStudy from './pages/QuickStudy'
+import Analytics from './pages/Analytics'
+import Social from './pages/Social'
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
           <Route path="/course-complete" element={<CourseComplete />} />
           <Route path="/language-lab" element={<LanguageLab />} />
           <Route path="/quick-study" element={<QuickStudy />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/social" element={<Social />} />
         </Routes>
       </Router>
     </ErrorBoundary>

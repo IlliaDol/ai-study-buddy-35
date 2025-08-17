@@ -1,14 +1,8 @@
-import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 
 export default function Hero() {
-  const [isVisible, setIsVisible] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   return (
     <>
@@ -21,32 +15,18 @@ export default function Hero() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,255,198,0.15),transparent_50%)]"></div>
         </div>
 
-        {/* Floating Particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-white/20 rounded-full animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`
-              }}
-            />
-          ))}
-        </div>
+
 
         {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 text-center">
           {/* Glowing Badge */}
-          <div className={`inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-3 rounded-full shadow-2xl mb-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-3 rounded-full shadow-2xl mb-8">
             <div className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-medium text-white/90">✨ AI-Powered Learning Platform</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className={`text-5xl md:text-7xl lg:text-8xl font-black leading-tight mb-8 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight mb-8">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
               AI Study
             </span>
@@ -55,26 +35,25 @@ export default function Hero() {
           </h1>
 
           {/* Subtitle */}
-          <p className={`text-xl md:text-2xl text-white/80 max-w-4xl mx-auto mb-12 leading-relaxed transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto mb-12 leading-relaxed">
             Революційна платформа для навчання з штучним інтелектом. 
             Створюйте персоналізовані курси, вивчайте мови, проходьте швидкі тести та досягайте цілей швидше.
           </p>
 
           {/* Main CTA Buttons */}
-          <div className={`flex flex-col sm:flex-row gap-6 justify-center mb-16 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
             <button 
               onClick={() => navigate('/learning')}
-              className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-2xl shadow-2xl hover:shadow-cyan-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-2xl shadow-2xl hover:shadow-xl transition-all duration-300"
             >
-              <span className="relative z-10 flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 🚀 Створити AI курс
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
             
             <button 
               onClick={() => navigate('/language-lab')}
-              className="group px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white font-semibold rounded-2xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+              className="px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white font-semibold rounded-2xl hover:bg-white/20 transition-all duration-300"
             >
               <span className="flex items-center gap-2">
                 🌍 Мовна лабораторія
@@ -83,7 +62,7 @@ export default function Hero() {
 
             <button 
               onClick={() => navigate('/quick-study')}
-              className="group px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white font-semibold rounded-2xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+              className="px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white font-semibold rounded-2xl hover:bg-white/20 transition-all duration-300"
             >
               <span className="flex items-center gap-2">
                 ⚡ Швидке навчання
@@ -92,35 +71,29 @@ export default function Hero() {
           </div>
 
           {/* Quick Stats */}
-          <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <div className="text-3xl font-bold text-cyan-400 mb-2">AI Курси</div>
               <div className="text-white/70">Персоналізовані</div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <div className="text-3xl font-bold text-purple-400 mb-2">5+ Мов</div>
               <div className="text-white/70">Для вивчення</div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <div className="text-3xl font-bold text-emerald-400 mb-2">Флешкартки</div>
               <div className="text-white/70">Швидке навчання</div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <div className="text-3xl font-bold text-orange-400 mb-2">Тести</div>
               <div className="text-white/70">Перевірка знань</div>
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-1200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-bounce"></div>
-            </div>
-            <p className="text-white/50 text-sm mt-2">Прокрутіть вниз</p>
-          </div>
+
         </div>
 
         {/* Bottom Wave */}
