@@ -1,51 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="uk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Study — Smart Flashcards & Quizzes</title>
-    <meta name="description" content="Transform any topic into interactive flashcards and quizzes. Study smarter with structured courses, flashcards, and quizzes." />
-    <link rel="canonical" href="https://ai-study-buddy.vercel.app/" />
-    <meta name="robots" content="index, follow" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
-    <link rel="manifest" href="/site.webmanifest" />
-    
-    <!-- Preconnect to external resources -->
-    <link rel="preconnect" href="https://api.deepseek.com" crossorigin>
-    <link rel="preconnect" href="https://api.openai.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <meta name="description" content="AI Study Buddy — навчання тем, курсів і мов з допомогою ШІ." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <meta property="og:title" content="AI Study — Smart Flashcards & Quizzes" />
-    <meta property="og:description" content="Transform any topic into interactive flashcards and quizzes. Study smarter with structured courses, flashcards, and quizzes." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/placeholder.svg" />
-    <meta property="og:url" content="https://ai-study-buddy.vercel.app/" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@yourbrand" />
-    <meta name="twitter:image" content="/placeholder.svg" />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "AI Study",
-        "url": "https://ai-study-buddy.vercel.app/",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://ai-study-buddy.vercel.app/?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <title>AI Study Buddy</title>
+    <script>
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = saved ? saved === 'dark' : prefersDark;
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
     </script>
   </head>
-
   <body>
-    <a href="#root" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded focus:shadow">
-      Skip to content
-    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

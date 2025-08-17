@@ -1,0 +1,13 @@
+{
+  "pageTitle": "AI Study Buddy – Головна",
+  "modules": [
+    {"name": "Navbar", "order": 1},
+    {"name": "Hero", "order": 2},
+    {"name": "SocialProof", "order": 3},
+    {"name": "HowItWorks", "order": 4},
+    {"name": "Features", "order": 5},
+    {"name": "CTA2", "order": 6},
+    {"name": "FAQ", "order": 7},
+    {"name": "Footer", "order": 8}
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "hero": {
+    "title": "Lerne mit deinem AI-Buddy!",
+    "subtitle": "Beherrsche jedes Thema mit KI-gestützten Kursen, Sprachübungen und Spaß-Funktionen.",
+    "cta": "Start"
+  },
+  "nav": { 
+    "home": "Start", 
+    "about": "Über uns", 
+    "courses": "Kurse", 
+    "faq": "FAQ", 
+    "contact": "Kontakt" 
+  },
+  "cards": {
+    "1": { 
+      "title": "Lernen", 
+      "description": "Adaptive Lektionen und Quiz zu jedem Thema", 
+      "cta": "Lernen" 
+    },
+    "2": { 
+      "title": "Erstellen", 
+      "description": "Erstelle deinen Kurs in 5 Minuten", 
+      "cta": "Erstellen" 
+    },
+    "3": { 
+      "title": "Sprachen", 
+      "description": "Übe Englisch, Deutsch und mehr", 
+      "cta": "Stärken" 
+    }
+  },
+  "how": {
+    "title": "Wie es funktioniert",
+    "steps": ["Thema wählen", "Level einstellen", "Forschung starten", "Nach Plan lernen"]
+  },
+  "faq": { 
+    "title": "Häufig gestellte Fragen" 
+  },
+  "footer": { 
+    "privacy": "Datenschutz", 
+    "terms": "Nutzungsbedingungen" 
+  },
+  "ui": { 
+    "language": "Sprache", 
+    "theme": "Thema", 
+    "light": "Hell", 
+    "dark": "Dunkel" 
+  },
+  "buttons": {
+    "deepResearch": "Deep Research starten",
+    "altCTAs": [
+      "Tiefer erforschen",
+      "Mehr erfahren",
+      "Jetzt starten",
+      "Lernen beginnen",
+      "Los geht's"
+    ]
+  }
+}

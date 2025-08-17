@@ -28,6 +28,28 @@ npm i
 npm run dev
 ```
 
+**Important**: The application runs on port 8080 by default.
+
+- **Development**: http://localhost:8080
+- **Preview**: http://localhost:8080
+
+### Quick Start Scripts
+
+**Windows:**
+```bash
+start-8080.bat
+```
+
+**PowerShell:**
+```powershell
+.\start-8080.ps1
+```
+
+**Manual:**
+```bash
+npm run dev
+```
+
 Build/preview:
 ```bash
 npm run build

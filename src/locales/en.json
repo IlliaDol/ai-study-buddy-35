@@ -1,0 +1,58 @@
+{
+  "hero": {
+    "title": "Learn with Your AI Buddy!",
+    "subtitle": "Master any topic with adaptive courses, languages, and fun challenges powered by AI.",
+    "cta": "Start"
+  },
+  "nav": { 
+    "home": "Home", 
+    "about": "About", 
+    "courses": "Courses", 
+    "faq": "FAQ", 
+    "contact": "Contact" 
+  },
+  "cards": {
+    "1": { 
+      "title": "Learn", 
+      "description": "Adaptive lessons and quizzes on any topic", 
+      "cta": "Start" 
+    },
+    "2": { 
+      "title": "Create", 
+      "description": "Build your own course in 5 minutes", 
+      "cta": "Create" 
+    },
+    "3": { 
+      "title": "Language", 
+      "description": "Practice English, German and more", 
+      "cta": "Boost" 
+    }
+  },
+  "how": {
+    "title": "How It Works",
+    "steps": ["Choose topic", "Set level", "Launch research", "Learn by plan"]
+  },
+  "faq": { 
+    "title": "Frequently Asked Questions" 
+  },
+  "footer": { 
+    "privacy": "Privacy Policy", 
+    "terms": "Terms of Use" 
+  },
+  "ui": { 
+    "language": "Language", 
+    "theme": "Theme", 
+    "light": "Light", 
+    "dark": "Dark" 
+  },
+  "buttons": {
+    "deepResearch": "Run Deep Research",
+    "altCTAs": [
+      "Begin Deep Research",
+      "Learn More",
+      "Start Now",
+      "Go to Courses",
+      "Explore Topic"
+    ]
+  }
+}
