@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import type { Course, CourseItem } from '../../store/course';
 import { nextItem, toggleDone, markVisited } from '../../store/course';
 import { Link } from 'react-router-dom';
 
 export default function CourseItemRenderer({ course, item }: { course: Course; item: CourseItem }) {
   const [speed, setSpeed] = useState(1);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const next = useMemo(() => nextItem(course, item.id), [course, item.id]);
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.playbackRate = speed;
+  }, [speed]);
 
   // mark visit
   markVisited(course.id, item.id);
@@ -21,7 +26,7 @@ export default function CourseItemRenderer({ course, item }: { course: Course; i
 
       {item.type === 'video' && (
         <section className="rounded-lg bg-card p-3 shadow-sm">
-          <video className="w-full rounded" src={item.videoUrl || ''} controls playsInline />
+          <video ref={videoRef} className="w-full rounded" src={item.videoUrl || ''} controls playsInline />
           <div className="mt-2 flex items-center gap-2 text-sm">
             <span>Speed</span>
             <select 

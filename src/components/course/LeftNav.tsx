@@ -1,4 +1,5 @@
 import { Link, NavLink, useParams } from 'react-router-dom';
+import { t } from '../../i18n';
 import type { Course } from '../../store/course';
 import { getProgress, flattenItems } from '../../store/course';
 
@@ -17,9 +18,9 @@ export default function LeftNav({ course }: { course: Course }) {
         <div className="text-xs text-muted-foreground">{doneCount}/{items.length}</div>
       </div>
       <ul className="space-y-1 mb-3">
-        <li><NavItem to={base} label="Overview" /></li>
-        <li><NavItem to={`${base}/discussions`} label="Discussions" /></li>
-        <li><NavItem to={`${base}/grades`} label="Grades" /></li>
+        <li><NavItem to={base} label={t('overview')} /></li>
+        <li><NavItem to={`${base}/discussions`} label={t('discussions')} /></li>
+        <li><NavItem to={`${base}/grades`} label={t('grades')} /></li>
       </ul>
       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Weeks & Modules</div>
       <ul className="space-y-2">

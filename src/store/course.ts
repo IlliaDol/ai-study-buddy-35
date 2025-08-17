@@ -42,16 +42,28 @@ export interface ItemProgress {
 type ProgressMap = Record<string, ItemProgress>;
 
 const PROGRESS_KEY = (courseId: string) => `COURSE_PROGRESS_${courseId}`;
-const SCHEDULE_KEY = (courseId: string) => `COURSE_SCHEDULE_${courseId}`;
+const SCHEDULE_BASE_KEY = (courseId: string) => `COURSE_SCHEDULE_BASE_${courseId}`;
+
+function getScheduleBase(courseId: string): string {
+  let base = localStorage.getItem(SCHEDULE_BASE_KEY(courseId));
+  if (!base) {
+    base = new Date().toISOString();
+    localStorage.setItem(SCHEDULE_BASE_KEY(courseId), base);
+  }
+  return base;
+}
 
 export function loadCourse(): Course {
-  // Sample deterministic on first run (can be replaced by API later)
+  // Sample deterministic on first run (can be replaced by API later).
+  // All due dates are computed relative to a persistent baseline (soft schedule start).
+  const courseId = 'sample-course';
+  const baseISO = getScheduleBase(courseId);
   const sample: Course = {
-    id: 'sample-course',
+    id: courseId,
     title: 'AI Fundamentals — Full Edition',
     deadlinesOn: true,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    softScheduleStart: new Date().toISOString(),
+    softScheduleStart: baseISO,
     weeks: [
       {
         id: 'w1',
@@ -61,9 +73,9 @@ export function loadCourse(): Course {
             id: 'm1',
             title: 'Intro & Basics',
             items: [
-              { id: 'i1', type: 'video', title: 'Welcome & Orientation', videoUrl: '', durationMin: 6, dueAt: isoShift(2) },
-              { id: 'i2', type: 'reading', title: 'What is a Model?', content: demoReading(), durationMin: 8, dueAt: isoShift(3) },
-              { id: 'i3', type: 'quiz', title: 'Foundations Quiz', content: 'foundations-quiz', durationMin: 10, dueAt: isoShift(4) },
+              { id: 'i1', type: 'video', title: 'Welcome & Orientation', videoUrl: '', durationMin: 6, dueAt: isoShiftFrom(baseISO, 2) },
+              { id: 'i2', type: 'reading', title: 'What is a Model?', content: demoReading(), durationMin: 8, dueAt: isoShiftFrom(baseISO, 3) },
+              { id: 'i3', type: 'quiz', title: 'Foundations Quiz', content: 'foundations-quiz', durationMin: 10, dueAt: isoShiftFrom(baseISO, 4) },
             ],
           },
         ],
@@ -76,8 +88,8 @@ export function loadCourse(): Course {
             id: 'm2',
             title: 'Hands-on',
             items: [
-              { id: 'i4', type: 'reading', title: 'Prompt Patterns', content: demoReading2(), durationMin: 10, dueAt: isoShift(7) },
-              { id: 'i5', type: 'lab', title: 'Mini Lab: Evaluate Prompts', durationMin: 15, dueAt: isoShift(9) },
+              { id: 'i4', type: 'reading', title: 'Prompt Patterns', content: demoReading2(), durationMin: 10, dueAt: isoShiftFrom(baseISO, 7) },
+              { id: 'i5', type: 'lab', title: 'Mini Lab: Evaluate Prompts', durationMin: 15, dueAt: isoShiftFrom(baseISO, 9) },
             ],
           },
         ],
@@ -87,8 +99,8 @@ export function loadCourse(): Course {
   return sample;
 }
 
-function isoShift(days: number) {
-  const d = new Date();
+function isoShiftFrom(baseISO: string, days: number) {
+  const d = new Date(baseISO);
   d.setDate(d.getDate() + days);
   return d.toISOString();
 }
@@ -141,5 +153,5 @@ export function getDeadlines(course: Course) {
 }
 
 export function resetSoftSchedule(courseId: string) {
-  localStorage.setItem(SCHEDULE_KEY(courseId), new Date().toISOString());
+  localStorage.setItem(SCHEDULE_BASE_KEY(courseId), new Date().toISOString());
 }
