@@ -1,0 +1,532 @@
+﻿diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..9c0847a
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,6 @@
++# Runtime environment
++# (Leave empty; values set by user in Settings UI)
++VITE_OPENAI_API_KEY=
++VITE_OPENAI_BASE_URL=
++VITE_DEEPSEEK_API_KEY=
++VITE_DEEPSEEK_BASE_URL=
+diff --git a/.gitignore b/.gitignore
+index fc5ae9f..a2f148e 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -23,3 +23,4 @@ dist-ssr
+ *.sln
+ *.sw?
+ .vercel
++\n# Local env (ignored)\n.env
+diff --git a/src/App.tsx b/src/App.tsx
+index 429839b..fc6e7e9 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
+ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+ import { BrowserRouter, Routes, Route } from "react-router-dom";
+ import Index from "./pages/Index";
++import Review from "./pages/Review";
+ import NotFound from "./pages/NotFound";
+ import Terms from "./pages/Terms";
+ import Privacy from "./pages/Privacy";
+@@ -21,6 +22,7 @@ const App = () => (
+         <Toaster />
+         <Routes>
+           <Route path="/" element={<Index />} />
++          <Route path="/review" element={<Review />} />
+           <Route path="/terms" element={<Terms />} />
+           <Route path="/privacy" element={<Privacy />} />
+           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+diff --git a/src/components/MainNavigation.tsx b/src/components/MainNavigation.tsx
+index e6af78b..ceebab0 100644
+--- a/src/components/MainNavigation.tsx
++++ b/src/components/MainNavigation.tsx
+@@ -126,7 +126,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
+             ) : (
+               <span className="text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 rounded-full px-3 py-1.5">
+                 <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+-                No API key
++                {t('main.status.noKey')}
+               </span>
+             )}
+ 
+@@ -160,8 +160,8 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
+                 <Flame size={18} className="text-amber-500" />
+               </div>
+               <div>
+-                <div className="text-xs text-slate-500 dark:text-slate-400">Streak</div>
+-                <div className="font-bold">{streak} {streak === 1 ? 'day' : 'days'}</div>
++                <div className="text-xs text-slate-500 dark:text-slate-400">{t('main.stats.streak')}</div>
++                <div className="font-bold">{t('main.stats.days', {{ count: streak }})}</div>
+               </div>
+             </div>
+ 
+@@ -172,7 +172,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
+                 <Sparkles size={18} className="text-violet-500" />
+               </div>
+               <div>
+-                <div className="text-xs text-slate-500 dark:text-slate-400">Experience</div>
++                <div className="text-xs text-slate-500 dark:text-slate-400">{t('main.stats.xp')}</div>
+                 <div className="font-bold">{xp} XP</div>
+               </div>
+             </div>
+@@ -208,7 +208,7 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
+                 <p className="text-slate-600 dark:text-slate-300 mb-6">{t('main.topicCard.description')}</p>
+                 <div className="mt-auto">
+                   <div className="inline-flex items-center justify-center px-5 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm group-hover:bg-blue-100 dark:group-hover:bg-blue-800/50 transition-colors">
+-                    <Brain size={14} className="mr-2 group-hover:animate-bounce" /> Start Learning
++                    <Brain size={14} className="mr-2 group-hover:animate-bounce" /> {t('main.actions.startLearning')}
+                   </div>
+                 </div>
+               </div>
+diff --git a/src/components/Settings.tsx b/src/components/Settings.tsx
+index 02a844a..27f8592 100644
+--- a/src/components/Settings.tsx
++++ b/src/components/Settings.tsx
+@@ -10,7 +10,7 @@ interface SettingsProps {
+ 
+ export const Settings = ({ onClose }: SettingsProps) => {
+   const { t } = useTranslation();
+-  const [provider, setProvider] = useState('deepseek');
++  const [provider, setProvider] = useState('offline');
+   const [apiKey, setApiKey] = useState('');
+   const [showApiKey, setShowApiKey] = useState(false);
+   const [keyError, setKeyError] = useState('');
+@@ -18,7 +18,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
+ 
+   useEffect(() => {
+     // Load current settings from localStorage
+-    const currentProvider = localStorage.getItem('AI_PROVIDER') || 'deepseek';
++    const currentProvider = localStorage.getItem('AI_PROVIDER') || 'offline';
+     const currentKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '';
+ 
+     setProvider(currentProvider);
+@@ -100,6 +100,7 @@ export const Settings = ({ onClose }: SettingsProps) => {
+             >
+               <option value="deepseek">DeepSeek Reasoner</option>
+               <option value="openai">OpenAI GPT</option>
++              <option value="offline">Offline (no key)</option>
+             </select>
+           </div>
+ 
+diff --git a/src/config/apiConfig.ts b/src/config/apiConfig.ts
+index 518fab5..56b407f 100644
+--- a/src/config/apiConfig.ts
++++ b/src/config/apiConfig.ts
+@@ -1,158 +1,120 @@
+-// API Configuration for AI Study Buddy
+-// This file contains API settings and keys for external services
++// API Configuration for AI Study Buddy (production-safe)
++// NOTE: Secrets MUST NOT be committed to the repo. Keys come from runtime settings only.
++
++export type Provider = 'offline' | 'deepseek' | 'openai';
+ 
+ export interface APIConfig {
+-  provider: 'deepseek' | 'openai';
++  provider: Exclude<Provider, 'offline'>;
+   apiKey: string;
+-  baseUrl?: string;
+-  model?: string;
+-  temperature?: number;
+-  maxTokens?: number;
++  baseUrl: string;
++  model: string;
++  temperature: number;
++  maxTokens: number;
+ }
+ 
+-// Default API configuration
+-export const defaultAPIConfig: Omit<APIConfig, 'apiKey'> = {
+-  provider: 'deepseek',
++// Provider presets (without secrets)
++export const deepseekPreset = {
++  provider: 'deepseek' as const,
+   baseUrl: 'https://api.deepseek.com/chat/completions',
+   model: 'deepseek-reasoner',
+   temperature: 0.2,
+-  // Keep responses concise to avoid timeouts
+   maxTokens: 800,
+ };
+ 
+-// OpenAI configuration
+-export const openaiConfig: Omit<APIConfig, 'apiKey'> = {
+-  provider: 'openai',
++export const openaiPreset = {
++  provider: 'openai' as const,
+   baseUrl: 'https://api.openai.com/v1/chat/completions',
+   model: 'gpt-4o-mini',
+   temperature: 0.2,
+-  // Keep responses concise to avoid timeouts
+   maxTokens: 800,
+ };
+ 
+-// API Keys - Replace with your actual keys
+-export const API_KEYS = {
+-  // DeepSeek API Key - Insert your key here
+-  DEEPSEEK_API_KEY: 'sk-2231f2e6d3d84fd5ab2a4021fbe2d306', // sk-your-deepseek-key-here
+-  
+-  // OpenAI API Key - Not used (DeepSeek only)
+-  OPENAI_API_KEY: '', // Not needed - using DeepSeek only
++export const API_TIMEOUTS = {
++  DEFAULT: 45_000,
++  QUICK: 15_000,
++  LONG: 120_000,
+ };
+ 
+-// Get API configuration based on provider
+-export function getAPIConfig(provider: 'deepseek' | 'openai'): APIConfig {
+-  const apiKey = provider === 'deepseek' 
+-    ? API_KEYS.DEEPSEEK_API_KEY 
+-    : API_KEYS.OPENAI_API_KEY;
+-    
+-  if (!apiKey) {
+-    throw new Error(`API key not configured for provider: ${provider}`);
+-  }
+-  
+-  const config = provider === 'deepseek' ? defaultAPIConfig : openaiConfig;
+-  
+-  return {
+-    ...config,
+-    apiKey,
+-  };
+-}
++export const RATE_LIMITS = {
++  REQUESTS_PER_MINUTE: 60,
++  REQUESTS_PER_HOUR: 1000,
++};
++
++export const API_ERROR_MESSAGES = {
++  INVALID_KEY: 'Invalid API key format. Keys should start with "sk-"',
++  KEY_NOT_CONFIGURED: 'API key not configured. Please set your API key in settings.',
++  RATE_LIMIT_EXCEEDED: 'Rate limit exceeded. Please wait before making more requests.',
++  NETWORK_ERROR: 'Network error. Please check your internet connection.',
++  SERVER_ERROR: 'Server error. Please try again later.',
++  TIMEOUT: 'Request timeout. The API took too long to respond.',
++};
+ 
+-// Validate API key format
+-export function validateAPIKey(key: string, provider: 'deepseek' | 'openai'): boolean {
++export function validateAPIKey(key: string): boolean {
+   if (!key || typeof key !== 'string') return false;
+-  
+-  // Both DeepSeek and OpenAI keys start with 'sk-'
+   if (!key.startsWith('sk-')) return false;
+-  
+-  // Basic length validation
+-  if (key.length < 20) return false;
+-  
+-  return true;
++  return key.length >= 20;
+ }
+ 
+-// Get current API configuration from localStorage or config file
++/** Returns the current provider string (may be 'offline' when no key). */
++export function getCurrentProvider(): Provider {
++  const p = (localStorage.getItem('AI_PROVIDER') || 'offline') as Provider;
++  return p;
++}
++
++/** Returns a full API config or null if not configured (use offline fallback). */
+ export function getCurrentAPIConfig(): APIConfig | null {
+   try {
+-    // First try localStorage (for runtime configuration)
+-    const provider = (localStorage.getItem('AI_PROVIDER') || 'deepseek') as 'deepseek' | 'openai';
+-    const localKey = localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY');
+-    
+-    if (localKey && validateAPIKey(localKey, provider)) {
+-      const config = provider === 'deepseek' ? defaultAPIConfig : openaiConfig;
+-      return {
+-        ...config,
+-        apiKey: localKey,
+-      };
+-    }
+-    
+-    // Fallback to config file keys
+-    return getAPIConfig(provider);
+-  } catch (error) {
+-    console.warn('Failed to get API configuration:', error);
++    const provider = getCurrentProvider();
++    if (provider === 'offline') return null;
++
++    const key = (localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '').trim();
++    if (!validateAPIKey(key)) return null;
++
++    const preset = provider === 'deepseek' ? deepseekPreset : openaiPreset;
++    return { ...preset, apiKey: key };
++  } catch (err) {
++    console.warn('Failed to get API configuration:', err);
+     return null;
+   }
+ }
+ 
+-// Set API configuration in localStorage
+-export function setAPIConfig(provider: 'deepseek' | 'openai', apiKey: string): boolean {
+-  if (!validateAPIKey(apiKey, provider)) {
+-    console.error('Invalid API key format');
+-    return false;
+-  }
+-  
++export function setAPIConfig(provider: Provider, apiKey?: string): boolean {
+   try {
+     localStorage.setItem('AI_PROVIDER', provider);
+-    localStorage.setItem('AI_API_KEY', apiKey);
+-    
+-    // Keep legacy OpenAI key for backward compatibility
+-    if (provider === 'openai') {
+-      localStorage.setItem('OPENAI_API_KEY', apiKey);
++
++    if (provider === 'offline') {
++      localStorage.removeItem('AI_API_KEY');
++      return true;
+     }
+-    
++
++    const key = (apiKey || '').trim();
++    if (!validateAPIKey(key)) return false;
++    localStorage.setItem('AI_API_KEY', key);
++    if (provider === 'openai') localStorage.setItem('OPENAI_API_KEY', key); // legacy compat
+     return true;
+-  } catch (error) {
+-    console.error('Failed to save API configuration:', error);
++  } catch (err) {
++    console.error('Failed to save API configuration:', err);
+     return false;
+   }
+ }
+ 
+-// Clear API configuration
+ export function clearAPIConfig(): void {
+   localStorage.removeItem('AI_PROVIDER');
+   localStorage.removeItem('AI_API_KEY');
+   localStorage.removeItem('OPENAI_API_KEY');
+ }
+ 
+-// Check if API is configured
+ export function isAPIConfigured(): boolean {
+-  const config = getCurrentAPIConfig();
+-  return config !== null && !!config.apiKey;
++  return getCurrentAPIConfig() !== null;
+ }
+ 
+-// Get provider display name
+-export function getProviderDisplayName(provider: 'deepseek' | 'openai'): string {
+-  return provider === 'deepseek' ? 'DeepSeek Reasoner' : 'OpenAI GPT';
++export function getProviderDisplayName(provider: Provider): string {
++  switch (provider) {
++    case 'deepseek':
++      return 'DeepSeek Reasoner';
++    case 'openai':
++      return 'OpenAI GPT';
++    default:
++      return 'Offline';
++  }
+ }
+-
+-// API timeout configuration
+-export const API_TIMEOUTS = {
+-  DEFAULT: 45000, // 45 seconds (reduce deadline_exceeded)
+-  QUICK: 15000,   // 15 seconds for quick operations
+-  LONG: 120000,    // 120 seconds for complex operations
+-};
+-
+-// Rate limiting configuration
+-export const RATE_LIMITS = {
+-  REQUESTS_PER_MINUTE: 60,
+-  REQUESTS_PER_HOUR: 1000,
+-};
+-
+-// Error messages
+-export const API_ERROR_MESSAGES = {
+-  INVALID_KEY: 'Invalid API key format. Keys should start with "sk-"',
+-  KEY_NOT_CONFIGURED: 'API key not configured. Please set your API key in settings.',
+-  RATE_LIMIT_EXCEEDED: 'Rate limit exceeded. Please wait before making more requests.',
+-  NETWORK_ERROR: 'Network error. Please check your internet connection.',
+-  SERVER_ERROR: 'Server error. Please try again later.',
+-  TIMEOUT: 'Request timeout. The API took too long to respond.',
+-};
+diff --git a/src/config/deepseekConfig.ts b/src/config/deepseekConfig.ts
+index 1e4fe85..c81e3fa 100644
+--- a/src/config/deepseekConfig.ts
++++ b/src/config/deepseekConfig.ts
+@@ -1,13 +1,11 @@
+-// This script sets the DeepSeek Reasoner as the default AI provider
+-// and configures the API key in localStorage
+-
+-// Set the provider to DeepSeek
+-localStorage.setItem('AI_PROVIDER', 'deepseek');
+-
+-// Set the API key
+-localStorage.setItem('AI_API_KEY', 'sk-873aa4e64465474dbc28026efb69f2d5');
+-
+-// Enable API proxy usage if deployed
+-window.__USE_PROXY__ = window.location.hostname !== 'localhost';
+-
+-console.log('DeepSeek Reasoner configuration initialized successfully');
++import { deepseekPreset, getCurrentAPIConfig } from './apiConfig';
++
++export const deepseekConfig = {
++  baseUrl: deepseekPreset.baseUrl,
++  model: deepseekPreset.model,
++  /** Returns the user-provided key from runtime settings (or empty string). */
++  get apiKey() {
++    const cfg = getCurrentAPIConfig();
++    return cfg?.provider === 'deepseek' ? cfg.apiKey : '';
++  },
++};
+diff --git a/src/contexts/AIProviderContext.tsx b/src/contexts/AIProviderContext.tsx
+new file mode 100644
+index 0000000..bc9bf3f
+--- /dev/null
++++ b/src/contexts/AIProviderContext.tsx
+@@ -0,0 +1,48 @@
++import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
++import type { Provider } from '../config/apiConfig';
++
++export interface AIProviderState {
++  provider: Provider;
++  apiKey: string; // empty if offline or not set
++  setProvider: (p: Provider) => void;
++  setApiKey: (k: string) => void;
++}
++
++const Ctx = createContext<AIProviderState | null>(null);
++
++function readProvider(): Provider {
++  const raw = (localStorage.getItem('AI_PROVIDER') || 'offline').trim() as Provider;
++  return (raw === 'openai' || raw === 'deepseek' || raw === 'offline') ? raw : 'offline';
++}
++
++function readKey(): string {
++  return (localStorage.getItem('AI_API_KEY') || localStorage.getItem('OPENAI_API_KEY') || '').trim();
++}
++
++export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
++  const [provider, setProviderState] = useState<Provider>(() => readProvider());
++  const [apiKey, setApiKeyState] = useState<string>(() => readKey());
++
++  useEffect(() => {
++    localStorage.setItem('AI_PROVIDER', provider);
++  }, [provider]);
++
++  useEffect(() => {
++    if (apiKey) localStorage.setItem('AI_API_KEY', apiKey);
++  }, [apiKey]);
++
++  const value = useMemo<AIProviderState>(() => ({
++    provider,
++    apiKey,
++    setProvider: setProviderState,
++    setApiKey: setApiKeyState,
++  }), [provider, apiKey]);
++
++  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
++};
++
++export function useAIProvider(): AIProviderState {
++  const ctx = useContext(Ctx);
++  if (!ctx) throw new Error('useAIProvider must be used within <AIProvider>');
++  return ctx;
++}
+diff --git a/src/i18n.ts b/src/i18n.ts
+index f1700ba..a5787cb 100644
+--- a/src/i18n.ts
++++ b/src/i18n.ts
+@@ -28,6 +28,13 @@ const resources = {
+       "main.reviewSection.button": "Start Review",
+       "main.savedContent.title": "Your Saved Content",
+ 
++      "main.actions.startLearning": "Start Learning",
++      "main.status.noKey": "No API key",
++      "main.stats.xp": "Experience",
++      "main.stats.streak": "Streak",
++      "main.stats.days_one": "{{count}} day",
++      "main.stats.days_other": "{{count}} days",
++
+       // Topic Generator
+       "topic.title": "Generate Learning Content",
+       "topic.prompt": "What would you like to learn about?",
+@@ -171,6 +178,14 @@ const resources = {
+       "main.reviewSection.button": "РџРѕС‡Р°С‚Рё РїРѕРІС‚РѕСЂРµРЅРЅСЏ",
+       "main.savedContent.title": "Р’Р°С€ Р·Р±РµСЂРµР¶РµРЅРёР№ РєРѕРЅС‚РµРЅС‚",
+ 
++
++      "main.actions.startLearning": "РџРѕС‡Р°С‚Рё РЅР°РІС‡Р°РЅРЅСЏ",
++      "main.status.noKey": "РќРµРјР°С” API РєР»СЋС‡Р°",
++      "main.stats.xp": "Р”РѕСЃРІС–Рґ",
++      "main.stats.streak": "РЎРµСЂС–СЏ",
++      "main.stats.days_one": "{{count}} РґРµРЅСЊ",
++      "main.stats.days_other": "{{count}} РґРЅС–",
++
+       // Topic Generator
+       "topic.title": "РЎС‚РІРѕСЂРµРЅРЅСЏ РЅР°РІС‡Р°Р»СЊРЅРѕРіРѕ РєРѕРЅС‚РµРЅС‚Сѓ",
+       "topic.prompt": "Р©Рѕ Р± РІРё С…РѕС‚С–Р»Рё РІРёРІС‡РёС‚Рё?",
+diff --git a/src/pages/Review.tsx b/src/pages/Review.tsx
+new file mode 100644
+index 0000000..e90a46b
+--- /dev/null
++++ b/src/pages/Review.tsx
+@@ -0,0 +1,62 @@
++import React, { useMemo, useState } from 'react';
++import { useTranslation } from 'react-i18next';
++import { LoadingBlock } from '../components/LoadingBlock';
++import { ErrorBlock } from '../components/ErrorBlock';
++import { useSRS } from '../hooks/useSRS';
++
++interface ReviewCard {
++  id: string;
++  front: string;
++  back: string;
++}
++
++export default function Review() {
++  const { t } = useTranslation();
++  const { state, actions } = useSRS();
++  const [flipped, setFlipped] = useState(false);
++
++  const due = useMemo(() => state.cards.filter(c => new Date(c.dueDate) <= new Date()), [state.cards]);
++  const current = due[0];
++
++  if (state.loading) return <LoadingBlock label={t('review.loading')} />;
++  if (state.error) return <ErrorBlock label={t('review.error')} description={String(state.error)} />;
++
++  if (!current) {
++    return (
++      <div className="mx-auto max-w-xl p-6">
++        <div className="text-2xl font-semibold">{t('review.empty.title')}</div>
++        <div className="text-slate-600 dark:text-slate-300 mt-2">{t('review.empty.subtitle')}</div>
++      </div>
++    );
++  }
++
++  function grade(n: number) {
++    actions.grade(current.id, n);
++    setFlipped(false);
++  }
++
++  return (
++    <div className="mx-auto max-w-xl p-6">
++      <div className="text-sm text-slate-500 mb-2">{t('review.dueCount', { count: due.length })}</div>
++      <div className="border rounded-2xl p-6 bg-white dark:bg-slate-800 shadow-sm">
++        <div className="text-slate-400 text-xs mb-2">{current.id}</div>
++        <div className="text-xl font-semibold mb-3">{flipped ? current.back : current.front}</div>
++        <div className="flex gap-2">
++          {!flipped ? (
++            <button onClick={() => setFlipped(true)} className="px-3 py-2 rounded-lg bg-slate-900 text-white">
++              {t('review.actions.showAnswer')}
++            </button>
++          ) : (
++            <>
++              <button onClick={() => grade(1)} className="px-3 py-2 rounded-lg bg-rose-600 text-white">1</button>
++              <button onClick={() => grade(2)} className="px-3 py-2 rounded-lg bg-orange-600 text-white">2</button>
++              <button onClick={() => grade(3)} className="px-3 py-2 rounded-lg bg-amber-600 text-white">3</button>
++              <button onClick={() => grade(4)} className="px-3 py-2 rounded-lg bg-emerald-600 text-white">4</button>
++              <button onClick={() => grade(5)} className="px-3 py-2 rounded-lg bg-blue-600 text-white">5</button>
++            </>
++          )}
++        </div>
++      </div>
++    </div>
++  );
++}

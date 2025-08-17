@@ -1,0 +1,668 @@
+﻿diff --git a/src/store/course.ts b/src/store/course.ts
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/store/course.ts
+@@ -0,0 +1,199 @@
++// Minimal course store: types, sample data, local progress & deadlines
++export type ItemType = 'video' | 'reading' | 'quiz' | 'lab' | 'peer';
++
++export interface CourseItem {
++  id: string;
++  type: ItemType;
++  title: string;
++  durationMin?: number;
++  content?: string;       // reading text or quiz id ref
++  videoUrl?: string;
++  dueAt?: string;         // ISO string (soft deadline)
++}
++
++export interface CourseModule {
++  id: string;
++  title: string;
++  items: CourseItem[];
++}
++
++export interface CourseWeek {
++  id: string;
++  title: string;
++  modules: CourseModule[];
++}
++
++export interface Course {
++  id: string;
++  title: string;
++  weeks: CourseWeek[];
++  deadlinesOn: boolean;
++  timezone?: string;
++  softScheduleStart?: string;
++}
++
++export interface ItemProgress {
++  done: boolean;
++  attempts?: number;
++  score?: number;
++  lastVisited?: string;
++}
++
++type ProgressMap = Record<string, ItemProgress>;
++
++const PROGRESS_KEY = (courseId: string) => `COURSE_PROGRESS_${courseId}`;
++const SCHEDULE_KEY = (courseId: string) => `COURSE_SCHEDULE_${courseId}`;
++
++export function loadCourse(): Course {
++  // Sample deterministic on first run (can be replaced by API later)
++  const sample: Course = {
++    id: 'sample-course',
++    title: 'AI Fundamentals вЂ” Full Edition',
++    deadlinesOn: true,
++    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
++    softScheduleStart: new Date().toISOString(),
++    weeks: [
++      {
++        id: 'w1',
++        title: 'Week 1 вЂ” Foundations',
++        modules: [
++          {
++            id: 'm1',
++            title: 'Intro & Basics',
++            items: [
++              { id: 'i1', type: 'video', title: 'Welcome & Orientation', videoUrl: '', durationMin: 6, dueAt: isoShift(2) },
++              { id: 'i2', type: 'reading', title: 'What is a Model?', content: demoReading(), durationMin: 8, dueAt: isoShift(3) },
++              { id: 'i3', type: 'quiz', title: 'Foundations Quiz', content: 'foundations-quiz', durationMin: 10, dueAt: isoShift(4) },
++            ],
++          },
++        ],
++      },
++      {
++        id: 'w2',
++        title: 'Week 2 вЂ” Practice',
++        modules: [
++          {
++            id: 'm2',
++            title: 'Hands-on',
++            items: [
++              { id: 'i4', type: 'reading', title: 'Prompt Patterns', content: demoReading2(), durationMin: 10, dueAt: isoShift(7) },
++              { id: 'i5', type: 'lab', title: 'Mini Lab: Evaluate Prompts', durationMin: 15, dueAt: isoShift(9) },
++            ],
++          },
++        ],
++      },
++    ],
++  };
++  return sample;
++}
++
++function isoShift(days: number) {
++  const d = new Date();
++  d.setDate(d.getDate() + days);
++  return d.toISOString();
++}
++
++function demoReading() {
++  return `YouвЂ™ll get a Coursera-like flow without cloning UI.
++Focus: structure в†’ practice в†’ assessment. Deadlines are soft (you can reset schedule).`;
++}
++function demoReading2() {
++  return `Prompt patterns: role, constraints, examples, evaluation.
++Try: outline в†’ draft в†’ critique в†’ revise.`;
++}
++
++export function getProgress(courseId: string): ProgressMap {
++  const raw = localStorage.getItem(PROGRESS_KEY(courseId));
++  return raw ? JSON.parse(raw) : {};
++}
++
++export function setProgress(courseId: string, map: ProgressMap) {
++  localStorage.setItem(PROGRESS_KEY(courseId), JSON.stringify(map));
++}
++
++export function markVisited(courseId: string, itemId: string, patch: Partial<ItemProgress> = {}) {
++  const map = getProgress(courseId);
++  map[itemId] = { lastVisited: new Date().toISOString(), done: map[itemId]?.done ?? false, ...map[itemId], ...patch };
++  setProgress(courseId, map);
++}
++
++export function toggleDone(courseId: string, itemId: string, done = true) {
++  markVisited(courseId, itemId, { done });
++}
++
++export function flattenItems(course: Course): CourseItem[] {
++  return course.weeks.flatMap(w => w.modules.flatMap(m => m.items));
++}
++
++export function nextItem(course: Course, currentId?: string): CourseItem | undefined {
++  const items = flattenItems(course);
++  if (!currentId) return items[0];
++  const idx = items.findIndex(i => i.id === currentId);
++  return idx >= 0 && idx + 1 < items.length ? items[idx + 1] : undefined;
++}
++
++export function getDeadlines(course: Course) {
++  const now = new Date();
++  const items = flattenItems(course).filter(i => !!i.dueAt);
++  const overdue = items.filter(i => new Date(i.dueAt!) < now);
++  const upcoming = items.filter(i => new Date(i.dueAt!) >= now);
++  return { overdue, upcoming };
++}
++
++export function resetSoftSchedule(courseId: string) {
++  localStorage.setItem(SCHEDULE_KEY(courseId), new Date().toISOString());
++}
+diff --git a/src/utils/ics.ts b/src/utils/ics.ts
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/src/utils/ics.ts
+@@ -0,0 +1,46 @@
++import type { Course, CourseItem } from '../store/course';
++
++function icsEscape(s: string) {
++  return s.replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\n/g, '\\n');
++}
++
++function fmt(dt: string) {
++  // Basic UTC format YYYYMMDDTHHMMSSZ
++  const d = new Date(dt);
++  const pad = (n: number) => String(n).padStart(2, '0');
++  return `${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
++}
++
++export function exportDeadlinesToICS(course: Course) {
++  const items: CourseItem[] = course.weeks.flatMap(w => w.modules.flatMap(m => m.items));
++  const events = items
++    .filter(i => i.dueAt)
++    .map(i => [
++      'BEGIN:VEVENT',
++      `UID:${course.id}-${i.id}@ai-study`,
++      `DTSTAMP:${fmt(new Date().toISOString())}`,
++      `DTSTART:${fmt(i.dueAt!)}`,
++      `DTEND:${fmt(new Date(new Date(i.dueAt!).getTime() + 30*60*1000).toISOString())}`,
++      `SUMMARY:${icsEscape(`${course.title}: ${i.title}`)}`,
++      `DESCRIPTION:${icsEscape(`Type: ${i.type} вЂў Soft deadline`)}`,
++      'END:VEVENT',
++    ].join('\r\n')).join('\r\n');
++
++  const body = [
++    'BEGIN:VCALENDAR',
++    'VERSION:2.0',
++    'PRODID:-//ai-study//course//EN',
++    'CALSCALE:GREGORIAN',
++    events,
++    'END:VCALENDAR',
++  ].join('\r\n');
++
++  const blob = new Blob([body], { type: 'text/calendar;charset=utf-8' });
++  const url = URL.createObjectURL(blob);
++  const a = document.createElement('a');
++  a.href = url;
++  a.download = `${course.id}-deadlines.ics`;
++  a.click();
++  URL.revokeObjectURL(url);
++}
+diff --git a/src/layouts/CourseShell.tsx b/src/layouts/CourseShell.tsx
+new file mode 100644
+index 0000000..3333333
+--- /dev/null
++++ b/src/layouts/CourseShell.tsx
+@@ -0,0 +1,32 @@
++import React from 'react';
++
++type Props = {
++  left: React.ReactNode;
++  right: React.ReactNode;
++  children: React.ReactNode;
++  title?: string;
++};
++
++export default function CourseShell({ left, right, children, title }: Props) {
++  return (
++    <div className="min-h-svh">
++      <a href="#main" className="sr-only focus:not-sr-only focus:block bg-black/80 text-white p-2">
++        Skip to content
++      </a>
++      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-10">
++        <div className="container py-4 flex items-center justify-between">
++          <h1 className="text-xl font-semibold">{title ?? 'Course'}</h1>
++          <div className="text-sm text-muted-foreground">Full Edition</div>
++        </div>
++      </header>
++      <div className="container grid grid-cols-1 md:grid-cols-12 gap-4 py-4">
++        <aside className="md:col-span-3 space-y-4">{left}</aside>
++        <main id="main" className="md:col-span-6 space-y-4">{children}</main>
++        <aside className="md:col-span-3 space-y-4">{right}</aside>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/course/LeftNav.tsx b/src/components/course/LeftNav.tsx
+new file mode 100644
+index 0000000..4444444
+--- /dev/null
++++ b/src/components/course/LeftNav.tsx
+@@ -0,0 +1,76 @@
++import { Link, NavLink, useParams } from 'react-router-dom';
++import type { Course } from '../../store/course';
++import { getProgress, flattenItems } from '../../store/course';
++
++export default function LeftNav({ course }: { course: Course }) {
++  const { id } = useParams();
++  const progress = getProgress(course.id);
++  const items = flattenItems(course);
++  const doneCount = items.filter(i => progress[i.id]?.done).length;
++
++  const base = `/course/${course.id}`;
++
++  return (
++    <nav aria-label="Course content" className="rounded-lg bg-card p-3 shadow-sm">
++      <div className="flex items-center justify-between mb-2">
++        <div className="font-semibold">{course.title}</div>
++        <div className="text-xs text-muted-foreground">{doneCount}/{items.length}</div>
++      </div>
++      <ul className="space-y-1 mb-3">
++        <li><NavItem to={base} label="Overview" /></li>
++        <li><NavItem to={`${base}/discussions`} label="Discussions" /></li>
++        <li><NavItem to={`${base}/grades`} label="Grades" /></li>
++      </ul>
++      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Weeks & Modules</div>
++      <ul className="space-y-2">
++        {course.weeks.map(w => (
++          <li key={w.id} className="border rounded-md">
++            <div className="px-2 py-1.5 font-medium">{w.title}</div>
++            <div className="px-2 pb-2 space-y-2">
++              {w.modules.map(m => (
++                <div key={m.id}>
++                  <div className="text-sm font-medium">{m.title}</div>
++                  <ul className="mt-1 space-y-1">
++                    {m.items.map(it => {
++                      const done = progress[it.id]?.done;
++                      return (
++                        <li key={it.id}>
++                          <Link to={`${base}/lesson/${it.id}`} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-muted focus:bg-muted focus:outline-none">
++                            <span className={`min-w-2 h-2 rounded-full ${done ? 'bg-emerald-500' : 'bg-slate-300'}`} aria-hidden />
++                            <span className="truncate text-sm">{it.title}</span>
++                            <span className="ml-auto text-[11px] opacity-70">{it.type}</span>
++                          </Link>
++                        </li>
++                      );
++                    })}
++                  </ul>
++                </div>
++              ))}
++            </div>
++          </li>
++        ))}
++      </ul>
++    </nav>
++  );
++}
++
++function NavItem({ to, label }: { to: string; label: string }) {
++  return (
++    <NavLink
++      to={to}
++      className={({ isActive }) =>
++        `block px-2 py-1.5 rounded text-sm ${isActive ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`
++      }
++    >
++      {label}
++    </NavLink>
++  );
++}
+diff --git a/src/components/course/RightSidebar.tsx b/src/components/course/RightSidebar.tsx
+new file mode 100644
+index 0000000..5555555
+--- /dev/null
++++ b/src/components/course/RightSidebar.tsx
+@@ -0,0 +1,62 @@
++import type { Course } from '../../store/course';
++import { getDeadlines, getProgress, flattenItems, resetSoftSchedule } from '../../store/course';
++import { exportDeadlinesToICS } from '../../utils/ics';
++import { Link } from 'react-router-dom';
++
++export default function RightSidebar({ course }: { course: Course }) {
++  const { overdue, upcoming } = getDeadlines(course);
++  const progress = getProgress(course.id);
++  const items = flattenItems(course);
++  const next = items.find(i => !progress[i.id]?.done) ?? items[0];
++  const base = `/course/${course.id}`;
++
++  return (
++    <div className="space-y-4">
++      <section className="rounded-lg bg-card p-3 shadow-sm">
++        <header className="font-semibold mb-2">Timeline & Deadlines</header>
++        <div className="text-sm mb-2">
++          <span className="mr-3">Overdue: <b>{overdue.length}</b></span>
++          <span>Upcoming: <b>{upcoming.length}</b></span>
++        </div>
++        <div className="flex gap-2">
++          <button onClick={() => exportDeadlinesToICS(course)} className="px-2 py-1 rounded bg-primary text-white text-sm">
++            Export .ics
++          </button>
++          <button onClick={() => { resetSoftSchedule(course.id); alert('Schedule reset. Deadlines shifted from now.'); }} className="px-2 py-1 rounded border text-sm">
++            Reset schedule
++          </button>
++        </div>
++      </section>
++      {next && (
++        <section className="rounded-lg bg-card p-3 shadow-sm">
++          <header className="font-semibold mb-2">Next up</header>
++          <div className="text-sm mb-2">{next.title}</div>
++          <Link to={`${base}/lesson/${next.id}`} className="px-3 py-1.5 rounded bg-emerald-600 text-white text-sm">
++            Continue
++          </Link>
++        </section>
++      )}
++      <section className="rounded-lg bg-card p-3 shadow-sm">
++        <header className="font-semibold mb-2">WhatвЂ™s after this?</header>
++        <p className="text-sm text-muted-foreground">Keep a steady pace. Deadlines are soft вЂ” you can reschedule anytime.</p>
++      </section>
++    </div>
++  );
++}
+diff --git a/src/components/course/CourseItemRenderer.tsx b/src/components/course/CourseItemRenderer.tsx
+new file mode 100644
+index 0000000..6666666
+--- /dev/null
++++ b/src/components/course/CourseItemRenderer.tsx
+@@ -0,0 +1,76 @@
++import { useMemo, useState } from 'react';
++import type { Course, CourseItem } from '../../store/course';
++import { nextItem, toggleDone, markVisited } from '../../store/course';
++import { Link } from 'react-router-dom';
++
++export default function CourseItemRenderer({ course, item }: { course: Course; item: CourseItem }) {
++  const [speed, setSpeed] = useState(1);
++  const next = useMemo(() => nextItem(course, item.id), [course, item.id]);
++
++  // mark visit
++  markVisited(course.id, item.id);
++
++  return (
++    <div className="space-y-4">
++      <header className="rounded-lg bg-card p-3 shadow-sm">
++        <div className="flex items-center justify-between">
++          <h2 className="text-lg font-semibold">{item.title}</h2>
++          <span className="text-xs opacity-70">{item.type}</span>
++        </div>
++      </header>
++
++      {item.type === 'video' && (
++        <section className="rounded-lg bg-card p-3 shadow-sm">
++          <video className="w-full rounded" src={item.videoUrl || ''} controls playsInline />
++          <div className="mt-2 flex items-center gap-2 text-sm">
++            <span>Speed</span>
++            <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="border rounded px-2 py-1">
++              {[0.75, 1, 1.25, 1.5, 1.75, 2].map(v => <option key={v} value={v}>{v}x</option>)}
++            </select>
++          </div>
++        </section>
++      )}
++
++      {item.type === 'reading' && (
++        <section className="rounded-lg bg-card p-3 shadow-sm whitespace-pre-wrap leading-relaxed">
++          {item.content}
++        </section>
++      )}
++
++      {item.type === 'quiz' && (
++        <section className="rounded-lg bg-card p-3 shadow-sm">
++          <p className="text-sm mb-2">This launches the quiz generator for this module.</p>
++          <Link to="/quiz" className="px-3 py-1.5 rounded bg-primary text-white text-sm">Start Quiz</Link>
++        </section>
++      )}
++
++      {item.type === 'lab' && (
++        <section className="rounded-lg bg-card p-3 shadow-sm">
++          <p className="text-sm mb-2">Browser lab (IDE) placeholder. You can attach your runner later.</p>
++          <button className="px-3 py-1.5 rounded border text-sm" disabled>Open Lab</button>
++        </section>
++      )}
++
++      <footer className="flex items-center justify-between">
++        <button
++          onClick={() => toggleDone(course.id, item.id, true)}
++          className="px-3 py-1.5 rounded bg-emerald-600 text-white text-sm"
++        >
++          Mark as done
++        </button>
++        {next ? (
++          <Link to={`/course/${course.id}/lesson/${next.id}`} className="px-3 py-1.5 rounded bg-primary text-white text-sm">
++            Next в†’
++          </Link>
++        ) : (
++          <Link to={`/course/${course.id}`} className="px-3 py-1.5 rounded border text-sm">Back to overview</Link>
++        )}
++      </footer>
++    </div>
++  );
++}
+diff --git a/src/pages/course/CourseOverview.tsx b/src/pages/course/CourseOverview.tsx
+new file mode 100644
+index 0000000..7777777
+--- /dev/null
++++ b/src/pages/course/CourseOverview.tsx
+@@ -0,0 +1,39 @@
++import CourseShell from '../../layouts/CourseShell';
++import LeftNav from '../../components/course/LeftNav';
++import RightSidebar from '../../components/course/RightSidebar';
++import { loadCourse, flattenItems } from '../../store/course';
++import { Link } from 'react-router-dom';
++
++export default function CourseOverview() {
++  const course = loadCourse();
++  const first = flattenItems(course)[0];
++  return (
++    <CourseShell title={course.title} left={<LeftNav course={course} />} right={<RightSidebar course={course} />}>
++      <section className="rounded-lg bg-card p-4 shadow-sm">
++        <h2 className="text-xl font-semibold mb-2">Overview</h2>
++        <p className="text-sm text-muted-foreground mb-3">
++          Follow a structured, Coursera-inspired flow with soft deadlines, but a fully original interface.
++        </p>
++        {first && (
++          <Link to={`/course/${course.id}/lesson/${first.id}`} className="px-3 py-2 rounded bg-primary text-white text-sm">
++            Start / Resume
++          </Link>
++        )}
++      </section>
++      <section className="rounded-lg bg-card p-4 shadow-sm">
++        <h3 className="font-medium mb-2">Syllabus</h3>
++        <ul className="space-y-2">
++          {course.weeks.map(w => (
++            <li key={w.id}>
++              <div className="font-semibold">{w.title}</div>
++              <ul className="ml-2 mt-1 space-y-1">
++                {w.modules.map(m => (
++                  <li key={m.id} className="text-sm">{m.title} вЂ” {m.items.length} items</li>
++                ))}
++              </ul>
++            </li>
++          ))}
++        </ul>
++      </section>
++    </CourseShell>
++  );
++}
+diff --git a/src/pages/course/CourseDiscussions.tsx b/src/pages/course/CourseDiscussions.tsx
+new file mode 100644
+index 0000000..8888888
+--- /dev/null
++++ b/src/pages/course/CourseDiscussions.tsx
+@@ -0,0 +1,45 @@
++import { useState } from 'react';
++import CourseShell from '../../layouts/CourseShell';
++import LeftNav from '../../components/course/LeftNav';
++import RightSidebar from '../../components/course/RightSidebar';
++import { loadCourse } from '../../store/course';
++
++type Thread = { id: string; title: string; body: string };
++
++export default function CourseDiscussions() {
++  const course = loadCourse();
++  const [threads, setThreads] = useState<Thread[]>([]);
++  const [title, setTitle] = useState(''); const [body, setBody] = useState('');
++
++  const add = () => {
++    if (!title.trim()) return;
++    setThreads([{ id: crypto.randomUUID(), title, body }, ...threads ]);
++    setTitle(''); setBody('');
++  };
++
++  return (
++    <CourseShell title={course.title} left={<LeftNav course={course} />} right={<RightSidebar course={course} />}>
++      <section className="rounded-lg bg-card p-4 shadow-sm">
++        <h2 className="text-xl font-semibold mb-3">Discussions</h2>
++        <div className="space-y-2 mb-4">
++          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Thread title" className="w-full border rounded px-2 py-1"/>
++          <textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="Question / context" className="w-full border rounded px-2 py-2 min-h-[120px]"/>
++          <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-white text-sm">Post</button>
++        </div>
++        <ul className="space-y-2">
++          {threads.length === 0 && <li className="text-sm text-muted-foreground">No threads yet. Be the first to ask!</li>}
++          {threads.map(t => (
++            <li key={t.id} className="border rounded p-2">
++              <div className="font-medium">{t.title}</div>
++              <div className="text-sm text-muted-foreground whitespace-pre-wrap">{t.body}</div>
++            </li>
++          ))}
++        </ul>
++      </section>
++    </CourseShell>
++  );
++}
+diff --git a/src/pages/course/CourseItemPage.tsx b/src/pages/course/CourseItemPage.tsx
+new file mode 100644
+index 0000000..9999999
+--- /dev/null
++++ b/src/pages/course/CourseItemPage.tsx
+@@ -0,0 +1,20 @@
++import { useParams } from 'react-router-dom';
++import CourseShell from '../../layouts/CourseShell';
++import LeftNav from '../../components/course/LeftNav';
++import RightSidebar from '../../components/course/RightSidebar';
++import CourseItemRenderer from '../../components/course/CourseItemRenderer';
++import { loadCourse, flattenItems } from '../../store/course';
++
++export default function CourseItemPage() {
++  const course = loadCourse();
++  const { itemId } = useParams();
++  const item = flattenItems(course).find(i => i.id === itemId);
++  if (!item) return <div className="container p-6">Item not found</div>;
++  return (
++    <CourseShell title={course.title} left={<LeftNav course={course} />} right={<RightSidebar course={course} />}>
++      <CourseItemRenderer course={course} item={item} />
++    </CourseShell>
++  );
++}
+diff --git a/src/pages/course/CourseGrades.tsx b/src/pages/course/CourseGrades.tsx
+new file mode 100644
+index 0000000..aaaaaaa
+--- /dev/null
++++ b/src/pages/course/CourseGrades.tsx
+@@ -0,0 +1,39 @@
++import CourseShell from '../../layouts/CourseShell';
++import LeftNav from '../../components/course/LeftNav';
++import RightSidebar from '../../components/course/RightSidebar';
++import { loadCourse, flattenItems, getProgress } from '../../store/course';
++
++export default function CourseGrades() {
++  const course = loadCourse();
++  const items = flattenItems(course);
++  const progress = getProgress(course.id);
++  return (
++    <CourseShell title={course.title} left={<LeftNav course={course} />} right={<RightSidebar course={course} />}>
++      <section className="rounded-lg bg-card p-4 shadow-sm">
++        <h2 className="text-xl font-semibold mb-3">Grades</h2>
++        <div className="overflow-auto">
++          <table className="w-full text-sm">
++            <thead>
++              <tr className="text-left border-b">
++                <th className="py-2">Item</th>
++                <th className="py-2">Type</th>
++                <th className="py-2">Status</th>
++                <th className="py-2">Score</th>
++              </tr>
++            </thead>
++            <tbody>
++              {items.map(it => {
++                const pr = progress[it.id];
++                return (
++                  <tr key={it.id} className="border-b">
++                    <td className="py-2">{it.title}</td>
++                    <td className="py-2">{it.type}</td>
++                    <td className="py-2">{pr?.done ? 'Done' : 'Pending'}</td>
++                    <td className="py-2">{pr?.score ?? '-'}</td>
++                  </tr>
++                );
++              })}
++            </tbody>
++          </table>
++        </div>
++      </section>
++    </CourseShell>
++  );
++}
+diff --git a/src/i18n.ts b/src/i18n.ts
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/src/i18n.ts
+@@ -0,0 +1,22 @@
++// Minimal i18n stub (en/uk) вЂ“ extend later
++export type Lang = 'en' | 'uk';
++let current: Lang = (localStorage.getItem('LANG') as Lang) || 'en';
++export function setLang(l: Lang) { current = l; localStorage.setItem('LANG', l); }
++export function t(key: string): string { return (dict[current][key] ?? key) as string; }
++
++const dict: Record<Lang, Record<string,string>> = {
++  en: {
++    'overview': 'Overview',
++    'discussions': 'Discussions',
++    'grades': 'Grades',
++    'timeline': 'Timeline & Deadlines',
++    'export_ics': 'Export .ics',
++    'reset_schedule': 'Reset schedule',
++    'next_up': 'Next up',
++    'start_resume': 'Start / Resume',
++    'mark_done': 'Mark as done',
++    'next': 'Next',
++  },
++  uk: {
++    'overview': 'РћРіР»СЏРґ',
++    'discussions': 'РћР±РіРѕРІРѕСЂРµРЅРЅСЏ',
++    'grades': 'РћС†С–РЅРєРё',
++    'timeline': 'Р”РµРґР»Р°Р№РЅРё С‚Р° С‚Р°Р№РјР»Р°Р№РЅ',
++    'export_ics': 'Р•РєСЃРїРѕСЂС‚ .ics',
++    'reset_schedule': 'РЎРєРёРЅСѓС‚Рё РіСЂР°С„С–Рє',
++    'next_up': 'Р”Р°Р»С–',
++    'start_resume': 'РџРѕС‡Р°С‚Рё / РџСЂРѕРґРѕРІР¶РёС‚Рё',
++    'mark_done': 'РџРѕР·РЅР°С‡РёС‚Рё РІРёРєРѕРЅР°РЅРёРј',
++    'next': 'Р”Р°Р»С–',
++  },
++};
+diff --git a/src/App.tsx b/src/App.tsx
+index ccccccc..ddddddd 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,6 +1,14 @@
+-import { BrowserRouter, Routes, Route } from 'react-router-dom';
++import { BrowserRouter, Routes, Route } from 'react-router-dom';
++import CourseOverview from './pages/course/CourseOverview';
++import CourseItemPage from './pages/course/CourseItemPage';
++import CourseGrades from './pages/course/CourseGrades';
++import CourseDiscussions from './pages/course/CourseDiscussions';
+ 
+ export default function App() {
+   return (
+     <BrowserRouter>
+       <Routes>
++        {/* Course (Coursera-like) */}
++        <Route path="/course/:id" element={<CourseOverview />} />
++        <Route path="/course/:id/lesson/:itemId" element={<CourseItemPage />} />
++        <Route path="/course/:id/grades" element={<CourseGrades />} />
++        <Route path="/course/:id/discussions" element={<CourseDiscussions />} />
+       </Routes>
+     </BrowserRouter>
+   );
+ }
+
