@@ -100,6 +100,7 @@ export default function Index() {
   const handleTopicLearning = () => setPage('topic');
   const handleCourseGeneration = () => setPage('course');
   const handleLanguageLearning = () => setPage('language');
+  const handleQuickStudy = () => navigate('/quick-study');
 
   const handleContentGenerated = (content: {
     flashcards: Array<{ front: string; back: string }>;
@@ -286,6 +287,7 @@ export default function Index() {
               onTopicLearning={handleTopicLearning}
               onCourseGeneration={handleCourseGeneration}
               onLanguageLearning={handleLanguageLearning}
+              onQuickStudy={handleQuickStudy}
             />
 
             {/* Quick Stats Dashboard */}

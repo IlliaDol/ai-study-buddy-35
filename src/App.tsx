@@ -11,6 +11,7 @@ import CourseOverview from './pages/course/CourseOverview';
 import CourseItemPage from './pages/course/CourseItemPage';
 import CourseGrades from './pages/course/CourseGrades';
 import CourseDiscussions from './pages/course/CourseDiscussions';
+import QuickStudy from './pages/QuickStudy';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,8 @@ const App = () => (
           <Route path="/course/:id/lesson/:itemId" element={<CourseItemPage />} />
           <Route path="/course/:id/grades" element={<CourseGrades />} />
           <Route path="/course/:id/discussions" element={<CourseDiscussions />} />
+          {/* Quick Study */}
+          <Route path="/quick-study" element={<QuickStudy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
