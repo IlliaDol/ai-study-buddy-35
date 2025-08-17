@@ -17,8 +17,7 @@ import CoursePlayer from "@/components/CoursePlayer";
 import { useToast } from "@/hooks/use-toast";
 import LandingPage from "@/components/LandingPage";
 import { useNavigate } from "react-router-dom";
-import { Brain, Flame, Sparkles, ArrowLeft, BookOpen, Clock, Target, Trophy, Zap, Star, TrendingUp, Users } from "lucide-react";
-import { motion } from "framer-motion";
+import { Brain, Flame, Sparkles, ArrowLeft, BookOpen, Clock } from "lucide-react";
 
 // Unified page type for state machine
 type Page = 'main' | 'topic' | 'course' | 'language' | 'study-mode' | 'flashcards' | 'quiz' | 'language-flashcards';
@@ -101,7 +100,6 @@ export default function Index() {
   const handleTopicLearning = () => setPage('topic');
   const handleCourseGeneration = () => setPage('course');
   const handleLanguageLearning = () => setPage('language');
-  const handleQuickStudy = () => navigate('/quick-study');
 
   const handleContentGenerated = (content: {
     flashcards: Array<{ front: string; back: string }>;
@@ -283,253 +281,94 @@ export default function Index() {
     switch (page) {
       case 'main':
         return (
-          <div className="space-y-12">
+          <div className="space-y-8">
             <MainNavigation
               onTopicLearning={handleTopicLearning}
               onCourseGeneration={handleCourseGeneration}
               onLanguageLearning={handleLanguageLearning}
-              onQuickStudy={handleQuickStudy}
             />
 
-            {/* Enhanced Hero Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600/10 via-violet-600/10 to-purple-600/10 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 p-8 md:p-12"
-            >
-              {/* Animated background elements */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-blue-400/10 to-violet-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+            {/* Quick Stats Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Total Decks</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{savedDecks.length}</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="relative z-10 text-center">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="inline-flex items-center gap-3 mb-6"
-                >
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-2xl">
-                    <Brain className="w-8 h-8 text-white" />
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-violet-600 dark:text-violet-400" />
                   </div>
-                  <div className="text-left">
-                    <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
-                      AI Study Buddy
-                    </h1>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm">
-                      Your intelligent learning companion
-                    </p>
+                  <div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Experience</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{xp} XP</p>
                   </div>
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="text-lg text-slate-700 dark:text-slate-300 mb-8 max-w-2xl mx-auto"
-                >
-                  Master any topic or language with structured flashcards and quizzes. 
-                  <span className="text-emerald-500 font-semibold"> Powered by AI</span> when connected.
-                </motion.p>
-
-                {/* Enhanced Stats Display */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
-                  className="flex flex-wrap justify-center gap-6"
-                >
-                  <div className="flex items-center gap-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                      <Flame className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Streak</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-white">{streak} days</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Experience</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-white">{xp} XP</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20 dark:border-slate-700/50 shadow-xl">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-                      <Target className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Level</p>
-                      <p className="text-2xl font-bold text-slate-800 dark:text-white">{Math.floor(xp / 100) + 1}</p>
-                    </div>
-                  </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
 
-            {/* Enhanced Quick Stats Dashboard */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                    <BookOpen className="w-7 h-7 text-white" />
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Flame className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total Decks</p>
-                    <p className="text-3xl font-bold text-slate-800 dark:text-white">{savedDecks.length}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Streak</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{streak} days</p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                    <Sparkles className="w-7 h-7 text-white" />
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <Brain className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Experience</p>
-                    <p className="text-3xl font-bold text-slate-800 dark:text-white">{xp} XP</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Level</p>
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{Math.floor(xp / 100) + 1}</p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
+            </div>
 
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                    <Flame className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Streak</p>
-                    <p className="text-3xl font-bold text-slate-800 dark:text-white">{streak} days</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                    <Trophy className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Level</p>
-                    <p className="text-3xl font-bold text-slate-800 dark:text-white">{Math.floor(xp / 100) + 1}</p>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-
-            {/* Enhanced Due Cards Alert */}
+            {/* Due Cards Alert - Enhanced */}
             {dueDecksCount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative overflow-hidden bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-8 shadow-xl"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 to-orange-400/10"></div>
-                <div className="relative z-10 flex items-center gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                    <Clock className="w-8 h-8 text-white" />
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-2">Review Time!</h3>
-                    <p className="text-amber-700 dark:text-amber-300 text-lg">
+                    <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-1">Review Time!</h3>
+                    <p className="text-amber-700 dark:text-amber-300">
                       You have cards due for review in {dueDecksCount} {dueDecksCount === 1 ? 'deck' : 'decks'}.
                     </p>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={handleStartDueReview}
-                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                    className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-lg"
                   >
                     Start Review
-                  </motion.button>
+                  </button>
                 </div>
-              </motion.div>
+              </div>
             )}
 
-            {/* Enhanced Saved Decks Section */}
+            {/* Saved Decks Section */}
             {savedDecks.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-8 border border-white/20 dark:border-slate-700/50 shadow-xl"
-              >
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Your Study Decks</h2>
-                </div>
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Your Study Decks</h2>
                 <SavedDecks decks={savedDecks} onReview={handleStartReview} onDelete={handleDeleteDeck} />
-              </motion.div>
+              </div>
             )}
-
-            {/* New Features Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="bg-gradient-to-br from-slate-50/50 to-blue-50/50 dark:from-slate-800/50 dark:to-blue-900/20 backdrop-blur-xl rounded-2xl p-8 border border-white/20 dark:border-slate-700/50"
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Why Choose AI Study Buddy?</h2>
-                <p className="text-slate-600 dark:text-slate-400">Discover the features that make learning more effective</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Zap className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">AI-Powered</h3>
-                  <p className="text-slate-600 dark:text-slate-400">Generate personalized content with advanced AI</p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <TrendingUp className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Smart Learning</h3>
-                  <p className="text-slate-600 dark:text-slate-400">Adaptive spaced repetition for optimal retention</p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Users className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Multi-Language</h3>
-                  <p className="text-slate-600 dark:text-slate-400">Support for English, Ukrainian, and German</p>
-                </div>
-              </div>
-            </motion.div>
           </div>
         );
 
@@ -606,41 +445,40 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-violet-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Enhanced animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-violet-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-blue-400/5 to-violet-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-emerald-400/8 rounded-full blur-3xl animate-pulse delay-1500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-violet-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-violet-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <div className="relative z-10">
         {/* Enhanced Header */}
-        <header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50 sticky top-0 z-50 shadow-lg">
+        <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-xl">
-                    <Brain className="w-7 h-7 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg">
+                    <Brain className="w-6 h-6 text-white" />
                   </div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
                     AI Study Buddy
                   </h1>
                 </div>
                 
-                {/* Enhanced Progress Bar */}
-                <div className="hidden md:flex items-center gap-4 ml-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-amber-500 animate-pulse shadow-lg"></div>
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {/* Progress Bar */}
+                <div className="hidden md:flex items-center gap-3 ml-8">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       Level {Math.floor(xp / 100) + 1}
                     </span>
                   </div>
-                  <div className="w-32 h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+                  <div className="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-500 progress-bar shadow-lg"
+                      className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-300 progress-bar"
                       style={{ width: `${(xp % 100)}%` }}
                     ></div>
                   </div>
@@ -650,13 +488,13 @@ export default function Index() {
               <div className="flex items-center gap-4">
                 {/* Enhanced Stats */}
                 <div className="hidden sm:flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/30 px-4 py-2 rounded-full border border-amber-200 dark:border-amber-800 shadow-md">
+                  <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800">
                     <Flame className="w-4 h-4 text-amber-500" />
                     <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
                       {streak} day{streak !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/30 px-4 py-2 rounded-full border border-violet-200 dark:border-violet-800 shadow-md">
+                  <div className="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/30 px-3 py-1.5 rounded-full border border-violet-200 dark:border-violet-800">
                     <Sparkles className="w-4 h-4 text-violet-500" />
                     <span className="text-sm font-semibold text-violet-700 dark:text-violet-300">
                       {xp} XP
@@ -676,15 +514,13 @@ export default function Index() {
                   </div>
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => setShowApp(false)}
-                  className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors bg-white/50 dark:bg-slate-700/50 px-4 py-2 rounded-full backdrop-blur-sm"
+                  className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Назад до головної</span>
-                </motion.button>
+                </button>
               </div>
             </div>
           </div>
