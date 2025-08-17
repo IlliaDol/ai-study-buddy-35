@@ -51,6 +51,9 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
         {/* Background overlay with gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-violet-600/30 backdrop-blur-md" />
 
+        {/* Dark scrim overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
+
         {/* Animated floating shapes */}
         {mounted && (
           <>
@@ -89,13 +92,13 @@ export const MainNavigation = ({ onTopicLearning, onLanguageLearning, onCourseGe
             transition={{ duration: 0.5 }}
             className="mb-6"
           >
-            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 dark:from-blue-400 dark:to-violet-400">
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
               {t('app.title')}
             </h1>
 
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-slate-700 dark:text-slate-300">
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-white/90">
               Master any topic or language with structured flashcards and quizzes.
-              <span className="text-blue-600 dark:text-primary font-semibold"> Powered by AI</span> when connected.
+              <span className="text-emerald-300 font-semibold"> Powered by AI</span> when connected.
             </p>
           </motion.div>
 
