@@ -1,0 +1,36 @@
+{
+  "name": "kavomant",
+  "version": "1.0.0",
+  "description": "Пророцтва з кавової гущі - AI-powered coffee reading app",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "framer-motion": "^10.16.0",
+    "lucide-react": "^0.292.0",
+    "react-dropzone": "^14.2.0",
+    "canvas": "^2.11.0",
+    "sharp": "^0.32.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
+  },
+  "keywords": ["coffee", "divination", "ai", "fortune", "tasseography"],
+  "author": "KAWA Team",
+  "license": "MIT"
+}

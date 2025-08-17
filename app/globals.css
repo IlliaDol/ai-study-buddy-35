@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer components {
+  .coffee-gradient {
+    background: linear-gradient(135deg, #fef7f0 0%, #fdecd8 50%, #fbd5b0 100%);
+  }
+  
+  .mystic-shadow {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .coffee-border {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #f2752a, #e35a1f) 1;
+  }
+  
+  .steam-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .steam-effect::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
+    border-radius: 50%;
+    animation: steam 3s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .backdrop-blur-coffee {
+    backdrop-filter: blur(10px);
+    background-color: rgba(254, 247, 240, 0.8);
+  }
+}
