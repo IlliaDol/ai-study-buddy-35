@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
 import { Camera, Upload, Coffee, Sparkles, ArrowLeft, CheckCircle, Lightbulb, Zap } from 'lucide-react'
 
-type Intent = 'love' | 'money' | 'education' | 'luck' | null
+import { Intent } from '@/types'
 
 interface ImageUploadProps {
   onUpload: (imageUrl: string) => void
@@ -16,21 +16,39 @@ const intentEmojis = {
   love: '❤️',
   money: '💰',
   education: '📚',
-  luck: '✨'
+  luck: '✨',
+  health: '🏥',
+  travel: '✈️',
+  creativity: '🎨',
+  spirituality: '🙏',
+  family: '👨‍👩‍👧‍👦',
+  friendship: '🤝'
 }
 
 const intentColors = {
   love: 'from-pink-400 to-rose-500',
   money: 'from-emerald-400 to-green-500',
   education: 'from-blue-400 to-indigo-500',
-  luck: 'from-amber-400 to-yellow-500'
+  luck: 'from-amber-400 to-yellow-500',
+  health: 'from-green-400 to-emerald-500',
+  travel: 'from-blue-400 to-cyan-500',
+  creativity: 'from-purple-400 to-pink-500',
+  spirituality: 'from-indigo-400 to-purple-500',
+  family: 'from-orange-400 to-red-500',
+  friendship: 'from-teal-400 to-blue-500'
 }
 
 const intentNames = {
   love: 'Love',
   money: 'Money',
   education: 'Education',
-  luck: 'Luck'
+  luck: 'Luck',
+  health: 'Health',
+  travel: 'Travel',
+  creativity: 'Creativity',
+  spirituality: 'Spirituality',
+  family: 'Family',
+  friendship: 'Friendship'
 }
 
 export default function ImageUpload({ onUpload, intent }: ImageUploadProps) {
@@ -332,18 +350,7 @@ export default function ImageUpload({ onUpload, intent }: ImageUploadProps) {
           </div>
         </motion.div>
 
-        {/* Disclaimer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="text-center"
-        >
-          <div className="inline-flex items-center space-x-2 bg-white/50 backdrop-blur-sm px-6 py-3 rounded-full border border-white/50">
-            <span className="text-amber-500">⚠️</span>
-            <p className="text-sm text-mystic-500">This is entertainment, not medical or financial advice</p>
-          </div>
-        </motion.div>
+
       </div>
     </motion.div>
   )

@@ -17,7 +17,7 @@ const crimsonText = Crimson_Text({
 
 export const metadata: Metadata = {
   title: 'CoffeeOracle - AI-Powered Coffee Ground Divination',
-  description: 'Discover your future through the ancient art of coffee ground reading. Upload a photo and receive personalized prophecies powered by AI. Entertainment only - not medical or financial advice.',
+  description: 'Discover your future through the ancient art of coffee ground reading. Upload a photo and receive personalized prophecies powered by AI.',
   keywords: 'coffee reading, coffee ground divination, tasseography, AI prophecy, mystical app, coffee oracle, fortune telling, daily guidance',
   authors: [{ name: 'CoffeeOracle Team' }],
   creator: 'CoffeeOracle',
@@ -69,10 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${crimsonText.variable}`}>
       <body className={`${inter.className} bg-gradient-to-br from-cream-50 to-coffee-50 min-h-screen`} suppressHydrationWarning={true}>
-        {/* ⚠️ This is entertainment, not medical or financial advice */}
-        <div style={{ display: 'none' }} aria-hidden="true">
-          ⚠️ This is entertainment, not medical or financial advice
-        </div>
+
         {children}
       </body>
     </html>

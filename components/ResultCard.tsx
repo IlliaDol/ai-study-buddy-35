@@ -385,35 +385,16 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
         </motion.div>
       </div>
 
-      {/* Bottom disclaimer */}
+      {/* Additional information */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, type: "spring", stiffness: 100 }}
-        className="text-center mt-16"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.0 }}
+        className="mt-8 p-6 bg-white/30 backdrop-blur-sm rounded-2xl border border-white/50 max-w-2xl mx-auto"
       >
-        <motion.div 
-          className="inline-flex items-center space-x-3 bg-gradient-to-r from-coffee-100 to-cream-100 px-6 py-3 rounded-2xl border border-coffee-200 shadow-lg"
-          whileHover={{ scale: 1.05, y: -2 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <span className="text-amber-500">⚠️</span>
-          <span className="text-sm text-coffee-800 font-medium">
-            This is entertainment, not medical or financial advice
-          </span>
-        </motion.div>
-
-        {/* Additional information */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          className="mt-8 p-6 bg-white/30 backdrop-blur-sm rounded-2xl border border-white/50 max-w-2xl mx-auto"
-        >
-          <p className="text-mystic-600 text-sm text-center leading-relaxed">
-            🌟 Each prophecy is unique and created specifically for you. AI analyzed your coffee grounds and revealed the secrets of your future
-          </p>
-        </motion.div>
+        <p className="text-mystic-600 text-sm text-center leading-relaxed">
+          🌟 Each prophecy is unique and created specifically for you. AI analyzed your coffee grounds and revealed the secrets of your future
+        </p>
       </motion.div>
     </motion.div>
   )

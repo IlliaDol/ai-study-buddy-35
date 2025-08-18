@@ -1,9 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Coffee, Sparkles, Zap, Star, Moon, CheckCircle } from 'lucide-react'
-
-type Intent = 'love' | 'money' | 'education' | 'luck' | null
+import { Coffee, Sparkles, Zap, Star, Moon, CheckCircle, Save, Heart } from 'lucide-react'
+import SaveReadingModal from './SaveReadingModal'
+import { Intent } from '@/types'
 
 interface CoffeeReadingProps {
   image: string | null
@@ -14,7 +15,13 @@ const intentNames = {
   love: 'Love',
   money: 'Money',
   education: 'Education',
-  luck: 'Luck'
+  luck: 'Luck',
+  health: 'Health',
+  travel: 'Travel',
+  creativity: 'Creativity',
+  spirituality: 'Spirituality',
+  family: 'Family',
+  friendship: 'Friendship'
 }
 
 const analysisSteps = [
@@ -49,6 +56,17 @@ const analysisSteps = [
 ]
 
 export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
+  const [showSaveModal, setShowSaveModal] = useState(false)
+
+  // Симулюємо згенероване пророцтво
+  const generatedReading = {
+    title: "Ваше містичне пророцтво",
+    content: "На основі аналізу вашої кавової гущі, AI розкриває таємниці вашого майбутнього. У вас є особливий дар бачити крізь час та простір. Цей дар допоможе вам знайти правильний шлях у житті та зробити правильні вибори. Ваша інтуїція зараз особливо сильна - довіряйте їй. В найближчому майбутньому вас чекають значні зміни, які приведуть до позитивних результатів. Зберігайте оптимізм та віру в себе.",
+    intent: intent ? intentNames[intent] : 'Unknown',
+    timestamp: new Date().toLocaleString('uk-UA'),
+    image: image || undefined
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -283,6 +301,39 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
           </p>
         </motion.div>
       </motion.div>
+
+      {/* Save Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.6 }}
+        className="text-center mt-8"
+      >
+        <button
+          onClick={() => setShowSaveModal(true)}
+          className="
+            bg-gradient-to-r from-coffee-500 to-coffee-600 text-white px-8 py-4 rounded-full
+            text-lg font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-300
+            hover:from-coffee-600 hover:to-coffee-700 hover:shadow-coffee-500/50 hover:scale-105
+            flex items-center space-x-3 mx-auto
+          "
+        >
+          <Save className="w-5 h-5" />
+          <span>Зберегти пророцтво</span>
+          <Heart className="w-5 h-5" />
+        </button>
+        
+        <p className="text-coffee-600 text-sm mt-3">
+          Збережіть ваше містичне знання для майбутнього
+        </p>
+      </motion.div>
+
+      {/* Save Reading Modal */}
+      <SaveReadingModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        reading={generatedReading}
+      />
     </motion.div>
   )
 }

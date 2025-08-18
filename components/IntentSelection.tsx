@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, DollarSign, GraduationCap, Zap, Coffee, Sparkles, Star } from 'lucide-react'
+import { Heart, DollarSign, GraduationCap, Zap, Coffee, Sparkles, Star, Globe, Palette, Moon, Users } from 'lucide-react'
 import PaymentModal from './PaymentModal'
 
-type Intent = 'love' | 'money' | 'education' | 'luck'
+import { Intent } from '@/types'
 
 interface IntentSelectionProps {
   onSelect: (intent: Intent) => void
@@ -75,6 +75,102 @@ const intents = [
     timeOfDay: 'Night',
     season: 'Winter',
     chakra: 'Crown Chakra'
+  },
+  {
+    id: 'health' as Intent,
+    icon: Heart,
+    title: 'Health',
+    subtitle: 'Wellness, vitality, healing',
+    description: 'Guides you to physical and mental wellness, reveals paths to healing and maintaining good health',
+    color: 'from-green-400 to-emerald-500',
+    bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
+    borderColor: 'border-green-200',
+    keywords: ['health', 'wellness', 'healing', 'vitality', 'energy'],
+    planet: 'Mars',
+    symbol: 'Tree',
+    timeOfDay: 'Dawn',
+    season: 'Spring',
+    chakra: 'Root Chakra'
+  },
+  {
+    id: 'travel' as Intent,
+    icon: Globe,
+    title: 'Travel',
+    subtitle: 'Journeys, exploration, discovery',
+    description: 'Opens doors to new places and experiences, reveals hidden paths and exciting destinations',
+    color: 'from-cyan-400 to-blue-500',
+    bgColor: 'bg-gradient-to-br from-cyan-50 to-blue-50',
+    borderColor: 'border-cyan-200',
+    keywords: ['travel', 'journey', 'exploration', 'adventure', 'discovery'],
+    planet: 'Uranus',
+    symbol: 'Compass',
+    timeOfDay: 'Afternoon',
+    season: 'Summer',
+    chakra: 'Third Eye Chakra'
+  },
+  {
+    id: 'creativity' as Intent,
+    icon: Palette,
+    title: 'Creativity',
+    subtitle: 'Art, inspiration, expression',
+    description: 'Unlocks your creative potential, reveals sources of inspiration and artistic expression',
+    color: 'from-purple-400 to-violet-500',
+    bgColor: 'bg-gradient-to-br from-purple-50 to-violet-50',
+    borderColor: 'border-purple-200',
+    keywords: ['creativity', 'art', 'inspiration', 'expression', 'imagination'],
+    planet: 'Neptune',
+    symbol: 'Crystal',
+    timeOfDay: 'Twilight',
+    season: 'Autumn',
+    chakra: 'Sacral Chakra'
+  },
+  {
+    id: 'spirituality' as Intent,
+    icon: Moon,
+    title: 'Spirituality',
+    subtitle: 'Inner peace, enlightenment, connection',
+    description: 'Guides you on your spiritual journey, reveals paths to inner peace and higher consciousness',
+    color: 'from-indigo-400 to-purple-500',
+    bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50',
+    borderColor: 'border-indigo-200',
+    keywords: ['spirituality', 'enlightenment', 'meditation', 'consciousness', 'peace'],
+    planet: 'Pluto',
+    symbol: 'Lotus',
+    timeOfDay: 'Midnight',
+    season: 'Winter',
+    chakra: 'Crown Chakra'
+  },
+  {
+    id: 'family' as Intent,
+    icon: Users,
+    title: 'Family',
+    subtitle: 'Relationships, bonds, home',
+    description: 'Reveals the dynamics of family relationships and helps strengthen bonds with loved ones',
+    color: 'from-orange-400 to-red-500',
+    bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
+    borderColor: 'border-orange-200',
+    keywords: ['family', 'home', 'bonds', 'relationships', 'support'],
+    planet: 'Saturn',
+    symbol: 'House',
+    timeOfDay: 'Evening',
+    season: 'All Seasons',
+    chakra: 'Root Chakra'
+  },
+  {
+    id: 'friendship' as Intent,
+    icon: Heart,
+    title: 'Friendship',
+    subtitle: 'Connections, loyalty, support',
+    description: 'Guides you in building meaningful friendships and maintaining strong social connections',
+    color: 'from-pink-400 to-rose-500',
+    bgColor: 'bg-gradient-to-br from-pink-50 to-rose-50',
+    borderColor: 'border-pink-200',
+    keywords: ['friendship', 'loyalty', 'support', 'connection', 'trust'],
+    planet: 'Venus',
+    symbol: 'Bridge',
+    timeOfDay: 'Day',
+    season: 'Spring',
+    chakra: 'Heart Chakra'
   }
 ]
 
@@ -106,9 +202,9 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-            className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-coffee-500 to-coffee-600 rounded-full flex items-center justify-center shadow-2xl shadow-coffee-500/30"
+            className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-coffee-500 to-coffee-600 rounded-full flex items-center justify-center shadow-2xl shadow-coffee-500/30 relative"
           >
-            <Coffee className="w-12 h-12 text-white" />
+            <Coffee className="w-10 h-10 text-white" />
           </motion.div>
 
           <motion.h1
@@ -152,11 +248,11 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
                 <motion.div 
                   className={`
                     w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br ${intent.color}
-                    flex items-center justify-center shadow-lg
+                    flex items-center justify-center shadow-lg relative
                   `}
                   whileHover={{ scale: 1.1, rotate: 5 }}
                 >
-                  <intent.icon className="w-10 h-10 text-white" />
+                  <intent.icon className="w-8 h-8 text-white" />
                 </motion.div>
                 
                 <h3 className="text-3xl font-bold text-mystic-800 mb-2">
@@ -175,7 +271,7 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
               {/* Keywords */}
               <div className="mb-6">
                 <h4 className="font-semibold text-mystic-800 mb-3 flex items-center">
-                  <Sparkles className="w-4 h-4 mr-2 text-coffee-500" />
+                  <Sparkles className="w-4 h-4 mr-2 text-coffee-500 flex-shrink-0" />
                   Key Themes
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -239,27 +335,27 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
           {/* Process Explanation */}
           <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-8 border border-white/50 max-w-4xl mx-auto">
             <h3 className="text-2xl font-bold text-mystic-800 mb-6 flex items-center justify-center">
-              <Star className="w-6 h-6 mr-3 text-coffee-500" />
+              <Star className="w-6 h-6 mr-3 text-coffee-500 flex-shrink-0" />
               How does coffee magic work?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center">
-                  <Coffee className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
+                  <Coffee className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-semibold text-mystic-800">Pattern Analysis</h4>
                 <p className="text-mystic-600 text-sm">AI studies every swirl and shape in the coffee grounds</p>
               </div>
               <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center">
-                  <Star className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
+                  <Star className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-semibold text-mystic-800">Interpretation</h4>
                 <p className="text-mystic-600 text-sm">System recognizes symbols and archetypes</p>
               </div>
               <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
+                  <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-semibold text-mystic-800">Personalization</h4>
                 <p className="text-mystic-600 text-sm">Prophecy adapts to your intent</p>

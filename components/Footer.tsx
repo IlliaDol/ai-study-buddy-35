@@ -158,9 +158,7 @@ export default function Footer() {
               © {currentYear} CoffeeOracle. All rights reserved.
             </div>
             
-            <div className="text-slate-300 text-sm">
-              <span className="text-amber-400">⚠️</span> Entertainment only
-            </div>
+
           </div>
         </motion.div>
       </div>
