@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for Cloudflare Pages
-  output: 'export',
+  // Remove static export to enable API routes and server-side features
+  // output: 'export', // Commented out to enable API routes
   trailingSlash: true,
   images: {
-    unoptimized: true, // Required for static export
+    // unoptimized: true, // Not needed without static export
     domains: ['localhost', 'coffeeoracle.org'],
     formats: ['image/webp', 'image/avif'],
   },

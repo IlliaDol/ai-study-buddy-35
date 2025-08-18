@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle, Star, Coffee, Sparkles, Crown, ArrowRight, Download, Share2 } from 'lucide-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const searchParams = useSearchParams()
   const [planDetails, setPlanDetails] = useState<any>(null)
   
@@ -185,5 +186,20 @@ export default function SuccessPage() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-cream-50 via-coffee-100 to-cream-200 py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 border-4 border-coffee-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-mystic-600">Завантаження...</p>
+        </div>
+      </div>
+    }>
+      <SuccessPageContent />
+    </Suspense>
   )
 }
