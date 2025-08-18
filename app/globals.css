@@ -15,6 +15,145 @@
 }
 
 @layer components {
+  /* Coffee color palette */
+  .coffee-50 { background-color: #fef7f0; }
+  .coffee-100 { background-color: #fdecd8; }
+  .coffee-200 { background-color: #fbd5b0; }
+  .coffee-300 { background-color: #f9b888; }
+  .coffee-400 { background-color: #f69b60; }
+  .coffee-500 { background-color: #f2752a; }
+  .coffee-600 { background-color: #e35a1f; }
+  .coffee-700 { background-color: #c44a1a; }
+  .coffee-800 { background-color: #a53b15; }
+  .coffee-900 { background-color: #8b2e10; }
+  
+  /* Coffee text colors */
+  .text-coffee-50 { color: #fef7f0; }
+  .text-coffee-100 { color: #fdecd8; }
+  .text-coffee-200 { color: #fbd5b0; }
+  .text-coffee-300 { color: #f9b888; }
+  .text-coffee-400 { color: #f69b60; }
+  .text-coffee-500 { color: #f2752a; }
+  .text-coffee-600 { color: #e35a1f; }
+  .text-coffee-700 { color: #c44a1a; }
+  .text-coffee-800 { color: #a53b15; }
+  .text-coffee-900 { color: #8b2e10; }
+  
+  /* Mystic color palette */
+  .mystic-50 { background-color: #f8fafc; }
+  .mystic-100 { background-color: #f1f5f9; }
+  .mystic-200 { background-color: #e2e8f0; }
+  .mystic-300 { background-color: #cbd5e1; }
+  .mystic-400 { background-color: #94a3b8; }
+  .mystic-500 { background-color: #64748b; }
+  .mystic-600 { background-color: #475569; }
+  .mystic-700 { background-color: #334155; }
+  .mystic-800 { background-color: #1e293b; }
+  .mystic-900 { background-color: #0f172a; }
+  
+  /* Mystic text colors */
+  .text-mystic-50 { color: #f8fafc; }
+  .text-mystic-100 { color: #f1f5f9; }
+  .text-mystic-200 { color: #e2e8f0; }
+  .text-mystic-300 { color: #cbd5e1; }
+  .text-mystic-400 { color: #94a3b8; }
+  .text-mystic-500 { color: #64748b; }
+  .text-mystic-600 { color: #475569; }
+  .text-mystic-700 { color: #334155; }
+  .text-mystic-800 { color: #1e293b; }
+  .text-mystic-900 { color: #0f172a; }
+  
+  /* Cream color palette */
+  .cream-50 { background-color: #fef7f0; }
+  .cream-100 { background-color: #fdecd8; }
+  .cream-200 { background-color: #fbd5b0; }
+  .cream-300 { background-color: #f9b888; }
+  .cream-400 { background-color: #f69b60; }
+  .cream-500 { background-color: #f2752a; }
+  .cream-600 { background-color: #e35a1f; }
+  .cream-700 { background-color: #c44a1a; }
+  .cream-800 { background-color: #a53b15; }
+  .cream-900 { background-color: #8b2e10; }
+  
+  /* Cream text colors */
+  .text-cream-50 { color: #fef7f0; }
+  .text-cream-100 { color: #fdecd8; }
+  .text-cream-200 { color: #fbd5b0; }
+  .text-cream-300 { color: #f9b888; }
+  .text-cream-400 { color: #f69b60; }
+  .text-cream-500 { color: #f2752a; }
+  .text-cream-600 { color: #e35a1f; }
+  .text-cream-700 { color: #c44a1a; }
+  .text-cream-800 { color: #a53b15; }
+  .text-cream-900 { color: #8b2e10; }
+  
+  /* Gradient utilities */
+  .from-coffee-50 { background-image: linear-gradient(to right, #fef7f0, transparent); }
+  .from-coffee-100 { background-image: linear-gradient(to right, #fdecd8, transparent); }
+  .from-coffee-200 { background-image: linear-gradient(to right, #fbd5b0, transparent); }
+  .from-coffee-300 { background-image: linear-gradient(to right, #f9b888, transparent); }
+  .from-coffee-400 { background-image: linear-gradient(to right, #f69b60, transparent); }
+  .from-coffee-500 { background-image: linear-gradient(to right, #f2752a, transparent); }
+  .from-coffee-600 { background-image: linear-gradient(to right, #e35a1f, transparent); }
+  .from-coffee-700 { background-image: linear-gradient(to right, #c44a1a, transparent); }
+  .from-coffee-800 { background-image: linear-gradient(to right, #a53b15, transparent); }
+  .from-coffee-900 { background-image: linear-gradient(to right, #8b2e10, transparent); }
+  
+  .via-coffee-50 { background-image: linear-gradient(to right, transparent, #fef7f0, transparent); }
+  .via-coffee-100 { background-image: linear-gradient(to right, transparent, #fdecd8, transparent); }
+  .via-coffee-200 { background-image: linear-gradient(to right, transparent, #fbd5b0, transparent); }
+  .via-coffee-300 { background-image: linear-gradient(to right, transparent, #f9b888, transparent); }
+  .via-coffee-400 { background-image: linear-gradient(to right, transparent, #f69b60, transparent); }
+  .via-coffee-500 { background-image: linear-gradient(to right, transparent, #f2752a, transparent); }
+  .via-coffee-600 { background-image: linear-gradient(to right, transparent, #e35a1f, transparent); }
+  .via-coffee-700 { background-image: linear-gradient(to right, transparent, #c44a1a, transparent); }
+  .via-coffee-800 { background-image: linear-gradient(to right, transparent, #a53b15, transparent); }
+  .via-coffee-900 { background-image: linear-gradient(to right, transparent, #8b2e10, transparent); }
+  
+  .to-coffee-50 { background-image: linear-gradient(to right, transparent, #fef7f0); }
+  .to-coffee-100 { background-image: linear-gradient(to right, transparent, #fdecd8); }
+  .to-coffee-200 { background-image: linear-gradient(to right, transparent, #fbd5b0); }
+  .to-coffee-300 { background-image: linear-gradient(to right, transparent, #f9b888); }
+  .to-coffee-400 { background-image: linear-gradient(to right, transparent, #f69b60); }
+  .to-coffee-500 { background-image: linear-gradient(to right, transparent, #f2752a); }
+  .to-coffee-600 { background-image: linear-gradient(to right, transparent, #e35a1f); }
+  .to-coffee-700 { background-image: linear-gradient(to right, transparent, #c44a1a); }
+  .to-coffee-800 { background-image: linear-gradient(to right, transparent, #a53b15); }
+  .to-coffee-900 { background-image: linear-gradient(to right, transparent, #8b2e10); }
+  
+  .from-mystic-50 { background-image: linear-gradient(to right, #f8fafc, transparent); }
+  .from-mystic-100 { background-image: linear-gradient(to right, #f1f5f9, transparent); }
+  .from-mystic-200 { background-image: linear-gradient(to right, #e2e8f0, transparent); }
+  .from-mystic-300 { background-image: linear-gradient(to right, #cbd5e1, transparent); }
+  .from-mystic-400 { background-image: linear-gradient(to right, #94a3b8, transparent); }
+  .from-mystic-500 { background-image: linear-gradient(to right, #64748b, transparent); }
+  .from-mystic-600 { background-image: linear-gradient(to right, #475569, transparent); }
+  .from-mystic-700 { background-image: linear-gradient(to right, #334155, transparent); }
+  .from-mystic-800 { background-image: linear-gradient(to right, #1e293b, transparent); }
+  .from-mystic-900 { background-image: linear-gradient(to right, #0f172a, transparent); }
+  
+  .via-mystic-50 { background-image: linear-gradient(to right, transparent, #f8fafc, transparent); }
+  .via-mystic-100 { background-image: linear-gradient(to right, transparent, #f1f5f9, transparent); }
+  .via-mystic-200 { background-image: linear-gradient(to right, transparent, #e2e8f0, transparent); }
+  .via-mystic-300 { background-image: linear-gradient(to right, transparent, #cbd5e1, transparent); }
+  .via-mystic-400 { background-image: linear-gradient(to right, transparent, #94a3b8, transparent); }
+  .via-mystic-500 { background-image: linear-gradient(to right, transparent, #64748b, transparent); }
+  .via-mystic-600 { background-image: linear-gradient(to right, transparent, #475569, transparent); }
+  .via-mystic-700 { background-image: linear-gradient(to right, transparent, #334155, transparent); }
+  .via-mystic-800 { background-image: linear-gradient(to right, transparent, #1e293b, transparent); }
+  .via-mystic-900 { background-image: linear-gradient(to right, transparent, #0f172a, transparent); }
+  
+  .to-mystic-50 { background-image: linear-gradient(to right, transparent, #f8fafc); }
+  .to-mystic-100 { background-image: linear-gradient(to right, transparent, #f1f5f9); }
+  .to-mystic-200 { background-image: linear-gradient(to right, transparent, #e2e8f0); }
+  .to-mystic-300 { background-image: linear-gradient(to right, transparent, #cbd5e1); }
+  .to-mystic-400 { background-image: linear-gradient(to right, transparent, #94a3b8); }
+  .to-mystic-500 { background-image: linear-gradient(to right, transparent, #64748b); }
+  .to-mystic-600 { background-image: linear-gradient(to right, transparent, #475569); }
+  .to-mystic-700 { background-image: linear-gradient(to right, transparent, #334155); }
+  .to-mystic-800 { background-image: linear-gradient(to right, transparent, #1e293b); }
+  .to-mystic-900 { background-image: linear-gradient(to right, transparent, #0f172a); }
+
   .coffee-gradient {
     background: linear-gradient(135deg, #fef7f0 0%, #fdecd8 50%, #fbd5b0 100%);
   }
