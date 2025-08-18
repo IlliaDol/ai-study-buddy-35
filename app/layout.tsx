@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://coffeeoracle.org',
   },
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   manifest: '/manifest.json',
   openGraph: {
     title: 'CoffeeOracle - AI-Powered Coffee Ground Divination',
@@ -36,7 +41,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: 'https://coffeeoracle.org/og-image.jpg',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
         alt: 'CoffeeOracle - Mystical Coffee Ground Divination',
@@ -47,7 +52,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CoffeeOracle - AI-Powered Coffee Ground Divination',
     description: 'Discover your future through the ancient art of coffee ground reading. Get personalized prophecies powered by AI.',
-    images: ['https://coffeeoracle.org/og-image.jpg'],
+    images: ['/og-image.svg'],
     creator: '@coffeeoracle',
     site: '@coffeeoracle',
   },

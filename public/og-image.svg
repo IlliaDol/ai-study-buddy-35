@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef7f0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B4513;stop-opacity:0.1" />
+    </linearGradient>
+    <linearGradient id="coffeeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D2691E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="50" fill="#8B4513" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="80" fill="#8B4513" opacity="0.1"/>
+  <circle cx="1100" cy="100" r="40" fill="#D2691E" opacity="0.1"/>
+  <circle cx="100" cy="530" r="60" fill="#D2691E" opacity="0.1"/>
+  
+  <!-- Coffee cup -->
+  <g transform="translate(400, 200)">
+    <path d="M0 0 L0 200 Q0 220 20 220 L180 220 Q200 220 200 200 L200 0 Z" fill="url(#coffeeGradient)"/>
+    <path d="M200 0 L200 200 Q200 220 220 220 L220 0 Z" fill="url(#coffeeGradient)" opacity="0.7"/>
+    <path d="M220 40 Q280 40 280 80 Q280 120 220 120" stroke="#8B4513" stroke-width="20" fill="none"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="600" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#2D3748">
+    CoffeeOracle
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="#4A5568">
+    AI-Powered Coffee Ground Divination
+  </text>
+  
+  <!-- Mystical symbols -->
+  <circle cx="300" cy="150" r="15" fill="#FFD700"/>
+  <circle cx="900" cy="150" r="15" fill="#FFD700"/>
+  <circle cx="600" cy="120" r="12" fill="#FFD700"/>
+</svg>

@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Heart, DollarSign, GraduationCap, Zap, Coffee, Sparkles, Star } from 'lucide-react'
+import PaymentModal from './PaymentModal'
 
 type Intent = 'love' | 'money' | 'education' | 'luck'
 
@@ -77,6 +79,19 @@ const intents = [
 ]
 
 export default function IntentSelection({ onSelect }: IntentSelectionProps) {
+  const [showPayment, setShowPayment] = useState(false)
+  const [selectedIntent, setSelectedIntent] = useState<any>(null)
+
+  const handleIntentSelect = (intent: any) => {
+    setSelectedIntent(intent)
+    setShowPayment(true)
+  }
+
+  const handlePaymentClose = () => {
+    setShowPayment(false)
+    setSelectedIntent(null)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 via-coffee-100 to-cream-200 py-12">
       <div className="max-w-6xl mx-auto px-6">
@@ -125,7 +140,7 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
               transition={{ delay: 0.1 * index + 0.8 }}
               whileHover={{ y: -8, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => onSelect(intent.id)}
+              onClick={() => handleIntentSelect(intent)}
               className={`
                 ${intent.bgColor} ${intent.borderColor}
                 border-2 rounded-2xl p-8 cursor-pointer transition-all duration-300
@@ -257,9 +272,18 @@ export default function IntentSelection({ onSelect }: IntentSelectionProps) {
             <p className="text-mystic-700 text-center leading-relaxed">
               🌟 Each intent has its own special energy. AI will consider this when analyzing your coffee grounds and provide a more accurate and personalized prophecy that reveals the secrets of your future.
             </p>
-          </div>
+                    </div>
         </motion.div>
       </div>
+
+      {/* Payment Modal */}
+      {showPayment && selectedIntent && (
+        <PaymentModal
+          isOpen={showPayment}
+          onClose={handlePaymentClose}
+          intent={selectedIntent}
+        />
+      )}
     </div>
-    )
+  )
 }
