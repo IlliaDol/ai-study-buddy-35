@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable static export for Cloudflare Pages
+  output: 'export',
+  trailingSlash: true,
   images: {
+    unoptimized: true, // Required for static export
     domains: ['localhost', 'coffeeoracle.org'],
     formats: ['image/webp', 'image/avif'],
   },
