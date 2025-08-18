@@ -87,11 +87,14 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  const [paymentWidget, setPaymentWidget] = useState<string | null>(null)
+  const [showWidget, setShowWidget] = useState(false)
+
   const handlePayment = async (planId: string) => {
     setLoading(true)
     try {
-      // Тут буде інтеграція зі Stripe
-      const response = await fetch('/api/create-checkout-session', {
+      // Створюємо NOWPayments payment
+      const response = await fetch('/api/create-nowpayment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -102,15 +105,17 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
       })
       
       if (response.ok) {
-        const session = await response.json()
-        // Перенаправлення на Stripe Checkout
-        window.location.href = session.url
+        const payment = await response.json()
+        // Створюємо iframe для widget
+        const widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${payment.id}`
+        setPaymentWidget(widgetUrl)
+        setShowWidget(true)
       } else {
-        throw new Error('Payment failed')
+        throw new Error('Payment creation failed')
       }
     } catch (error) {
       console.error('Payment error:', error)
-      alert('Помилка оплати. Спробуйте ще раз.')
+      alert('Помилка створення оплати. Спробуйте ще раз.')
     } finally {
       setLoading(false)
     }
@@ -233,38 +238,73 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
                 })}
               </div>
 
-              {/* Payment Button */}
-              {selectedPlan && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-8 text-center"
-                >
-                  <button
-                    onClick={() => handlePayment(selectedPlan)}
-                    disabled={loading}
-                    className="
-                      bg-gradient-to-r from-coffee-500 to-coffee-600 text-white px-12 py-4 rounded-full
-                      text-xl font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-300
-                      hover:from-coffee-600 hover:to-coffee-700 hover:shadow-coffee-500/50
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                    "
-                  >
-                    {loading ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Обробка...</span>
-                      </div>
-                    ) : (
-                      `Оплатити ${plans.find(p => p.id === selectedPlan)?.price}$`
-                    )}
-                  </button>
-                  
-                  <p className="text-gray-500 text-sm mt-3">
-                    Безпечна оплата через Stripe • Можна скасувати в будь-який час
-                  </p>
-                </motion.div>
-              )}
+                             {/* Payment Button or Widget */}
+               {selectedPlan && !showWidget && (
+                 <motion.div
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   className="mt-8 text-center"
+                 >
+                   <button
+                     onClick={() => handlePayment(selectedPlan)}
+                     disabled={loading}
+                     className="
+                       bg-gradient-to-r from-coffee-500 to-coffee-600 text-white px-12 py-4 rounded-full
+                       text-xl font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-300
+                       hover:from-coffee-600 hover:to-coffee-700 hover:shadow-coffee-500/50
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                     "
+                   >
+                     {loading ? (
+                       <div className="flex items-center space-x-2">
+                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                         <span>Обробка...</span>
+                       </div>
+                     ) : (
+                       `Оплатити ${plans.find(p => p.id === selectedPlan)?.price}$`
+                     )}
+                   </button>
+                   
+                   <p className="text-gray-500 text-sm mt-3">
+                     Безпечна оплата криптовалютою • Можна скасувати в будь-який час
+                   </p>
+                 </motion.div>
+               )}
+
+               {/* Payment Widget */}
+               {showWidget && paymentWidget && (
+                 <motion.div
+                   initial={{ opacity: 0, scale: 0.9 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   className="mt-8 text-center"
+                 >
+                   <div className="bg-white rounded-2xl border-2 border-coffee-200 p-4 shadow-xl">
+                     <h3 className="text-xl font-bold text-coffee-800 mb-4">
+                       💳 Оплата криптовалютою
+                     </h3>
+                     <div className="flex justify-center">
+                       <iframe 
+                         src={paymentWidget}
+                         width="410" 
+                         height="696" 
+                         frameBorder="0" 
+                         scrolling="no" 
+                         style={{ overflowY: 'hidden' }}
+                         title="Payment Widget"
+                       />
+                     </div>
+                     <button
+                       onClick={() => {
+                         setShowWidget(false)
+                         setPaymentWidget(null)
+                       }}
+                       className="mt-4 text-coffee-600 hover:text-coffee-700 underline text-sm"
+                     >
+                       ← Повернутися до вибору плану
+                     </button>
+                   </div>
+                 </motion.div>
+               )}
 
               {/* Additional Info */}
               <div className="mt-8 p-6 bg-gradient-to-r from-coffee-50 to-cream-50 rounded-2xl border border-coffee-200">

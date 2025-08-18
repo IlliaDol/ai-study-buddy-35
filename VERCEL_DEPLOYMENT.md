@@ -20,8 +20,11 @@ This project is configured for deployment on Vercel, which provides excellent su
 Set these environment variables in your Vercel project:
 
 ```
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+# NOWPayments Configuration
+NOWPAYMENTS_API_KEY=78WRCRN-GV3M3RB-HD1CHR9-HVXS5RZ
+NOWPAYMENTS_IPN_SECRET=your_ipn_secret_here
+
+# App Configuration  
 NEXT_PUBLIC_URL=https://your-domain.vercel.app
 ```
 
