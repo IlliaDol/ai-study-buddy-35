@@ -1,0 +1,161 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.paths": true,
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.useAliasesForRenames": true,
+
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": ["."],
+  "eslint.format.enable": true,
+
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false,
+  "prettier.configPath": ".prettierrc",
+
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "tailwindCSS.validate": true,
+  "tailwindCSS.lint.cssConflict": "warning",
+  "tailwindCSS.lint.invalidApply": "error",
+  "tailwindCSS.lint.invalidConfigPath": "error",
+  "tailwindCSS.lint.invalidScreen": "error",
+  "tailwindCSS.lint.invalidTailwindDirective": "error",
+  "tailwindCSS.lint.invalidVariant": "error",
+  "tailwindCSS.lint.recommendedVariantOrder": "warning",
+
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/.next": true,
+    "**/out": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/out/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+
+  "emmet.includeLanguages": {
+    "typescript": "html",
+    "typescriptreact": "html"
+  },
+
+  "emmet.triggerExpansionOnTab": true,
+
+  "git.ignoreLimitWarning": true,
+  "git.autoStash": true,
+
+  "workbench.colorCustomizations": {
+    "editorError.foreground": "#ef4444",
+    "editorWarning.foreground": "#f59e0b",
+    "editorInfo.foreground": "#3b82f6"
+  },
+
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.preferredDarkColorTheme": "One Dark Pro Darker",
+  "workbench.preferredLightColorTheme": "One Light Pro",
+
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 20,
+
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+
+  "breadcrumbs.enabled": true,
+  "breadcrumbs.showFiles": true,
+  "breadcrumbs.showSymbols": true,
+
+  "problems.showCurrentInStatus": true,
+  "problems.decorations.enabled": true,
+
+  "editor.minimap.enabled": true,
+  "editor.minimap.maxColumn": 120,
+  "editor.minimap.showSlider": "always",
+
+  "editor.rulers": [80, 100],
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 100,
+
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairsHorizontal": "active",
+  "editor.guides.highlightActiveBracketPair": true,
+
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+
+  "editor.parameterHints.enabled": true,
+  "editor.hover.enabled": true,
+
+  "editor.snippetSuggestions": "top",
+  "editor.wordBasedSuggestions": "off",
+
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.includePackageJsonAutoImports": "auto",
+  "javascript.suggest.paths": true,
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.preferences.useAliasesForRenames": true
+}

@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Coffee, Sparkles, Zap, Star, Moon, CheckCircle, Save, Heart } from 'lucide-react'
-import SaveReadingModal from './SaveReadingModal'
 import { Intent } from '@/types'
+import { motion } from 'framer-motion'
+import { CheckCircle, Coffee, Heart, Moon, Save, Sparkles, Star } from 'lucide-react'
+import { useState } from 'react'
+import SaveReadingModal from './SaveReadingModal'
 
 interface CoffeeReadingProps {
   image: string | null
   intent: Intent | null
+  isLoading?: boolean
 }
 
 const intentNames = {
@@ -64,7 +65,7 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
     content: "На основі аналізу вашої кавової гущі, AI розкриває таємниці вашого майбутнього. У вас є особливий дар бачити крізь час та простір. Цей дар допоможе вам знайти правильний шлях у житті та зробити правильні вибори. Ваша інтуїція зараз особливо сильна - довіряйте їй. В найближчому майбутньому вас чекають значні зміни, які приведуть до позитивних результатів. Зберігайте оптимізм та віру в себе.",
     intent: intent ? intentNames[intent] : 'Unknown',
     timestamp: new Date().toLocaleString('uk-UA'),
-    image: image || undefined
+    image: image || ''
   }
 
   return (
@@ -87,7 +88,7 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
             className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-coffee-500 to-coffee-600 rounded-full flex items-center justify-center shadow-2xl shadow-coffee-500/30 relative"
           >
             <Coffee className="w-16 h-16 text-white" />
-            
+
             {/* Animated rings */}
             <motion.div
               animate={{ rotate: 360 }}
@@ -110,7 +111,7 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
         >
           AI is Reading Your Coffee
         </motion.h2>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -141,15 +142,15 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
           transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
           className="space-y-6"
         >
-          <motion.h3 
+          <motion.h3
             className="text-3xl font-bold text-mystic-800 mb-6 text-center"
             whileHover={{ scale: 1.05 }}
           >
             Your Coffee Grounds
           </motion.h3>
-          
+
           {image && (
-            <motion.div 
+            <motion.div
               className="relative group"
               whileHover={{ scale: 1.02 }}
             >
@@ -159,10 +160,10 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
                 className="w-full h-96 object-cover rounded-3xl shadow-2xl border-4 border-coffee-200"
                 whileHover={{ scale: 1.05 }}
               />
-              
+
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-coffee-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl" />
-              
+
               {/* Steam effects */}
               <motion.div
                 animate={{ y: [-10, -20, -10] }}
@@ -203,13 +204,13 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
           transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
           className="space-y-8"
         >
-          <motion.h3 
+          <motion.h3
             className="text-3xl font-bold text-mystic-800 mb-8 text-center"
             whileHover={{ scale: 1.05 }}
           >
             Analysis Progress
           </motion.h3>
-          
+
           <div className="space-y-6">
             {analysisSteps.map((step, index) => (
               <motion.div
@@ -222,22 +223,22 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
                   <step.icon className="w-8 h-8 text-white" />
                 </div>
-                
+
                 <div className="flex-1">
-                  <motion.h4 
+                  <motion.h4
                     className="text-xl font-semibold text-mystic-800 mb-2"
                     whileHover={{ scale: 1.02 }}
                   >
                     {step.title}
                   </motion.h4>
-                  <motion.p 
+                  <motion.p
                     className="text-mystic-600 leading-relaxed"
                     whileHover={{ scale: 1.01 }}
                   >
                     {step.description}
                   </motion.p>
                 </div>
-                
+
                 <div className="w-8 h-8 bg-coffee-100 rounded-full flex items-center justify-center text-coffee-600 font-bold text-sm">
                   {step.step}
                 </div>
@@ -278,7 +279,7 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
         transition={{ delay: 1.2, type: "spring", stiffness: 100 }}
         className="text-center mt-16"
       >
-        <motion.div 
+        <motion.div
           className="inline-flex items-center space-x-3 bg-gradient-to-r from-coffee-100 to-cream-100 px-8 py-4 rounded-2xl border border-coffee-200 shadow-lg"
           whileHover={{ scale: 1.05, y: -2 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -322,7 +323,7 @@ export default function CoffeeReading({ image, intent }: CoffeeReadingProps) {
           <span>Зберегти пророцтво</span>
           <Heart className="w-5 h-5" />
         </button>
-        
+
         <p className="text-coffee-600 text-sm mt-3">
           Збережіть ваше містичне знання для майбутнього
         </p>

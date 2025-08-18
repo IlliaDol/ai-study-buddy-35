@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Share2, Download, RefreshCw, Coffee, Heart, Star, BookOpen, Zap, Sparkles, Crown, Gift, Moon } from 'lucide-react'
+import { BookOpen, Coffee, Crown, Download, Gift, Heart, Moon, RefreshCw, Share2, Sparkles, Star } from 'lucide-react'
+import { useState } from 'react'
 
 interface ResultCardProps {
   result: {
@@ -13,6 +13,7 @@ interface ResultCardProps {
   }
   image: string | null
   onReset: () => void
+  readingHistory?: any
 }
 
 const symbolIcons = {
@@ -45,7 +46,7 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
 
   const handleShare = async () => {
     setIsSharing(true)
-    
+
     try {
       if (navigator.share) {
         await navigator.share({
@@ -69,42 +70,42 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
 
   const handleDownload = () => {
     setIsDownloading(true)
-    
+
     // Create a canvas to generate the shareable image
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
-    
+
     if (ctx) {
       canvas.width = 1080
       canvas.height = 1920
-      
+
       // Background gradient
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
       gradient.addColorStop(0, '#fef7f0')
       gradient.addColorStop(1, '#fdecd8')
-      
+
       ctx.fillStyle = gradient
       ctx.fillRect(0, 0, canvas.width, canvas.height)
-      
+
       // Add some coffee-themed elements
       ctx.fillStyle = '#8B4513'
       ctx.beginPath()
       ctx.arc(canvas.width / 2, canvas.height * 0.3, 200, 0, 2 * Math.PI)
       ctx.fill()
-      
+
       // Add text
       ctx.fillStyle = '#1e293b'
       ctx.font = 'bold 48px Arial'
       ctx.textAlign = 'center'
       ctx.fillText('CoffeeOracle', canvas.width / 2, canvas.height * 0.6)
-      
+
       ctx.font = '36px Arial'
       ctx.fillText(result.symbol, canvas.width / 2, canvas.height * 0.7)
-      
+
       ctx.font = '24px Arial'
       ctx.fillStyle = '#64748b'
       ctx.fillText(result.message.substring(0, 50) + '...', canvas.width / 2, canvas.height * 0.8)
-      
+
       // Convert to blob and download
       canvas.toBlob((blob) => {
         if (blob) {
@@ -143,7 +144,7 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
             `}
           >
             <SymbolIcon className="w-20 h-20 text-white" />
-            
+
             {/* Animated rings */}
             <motion.div
               animate={{ rotate: 360 }}
@@ -155,7 +156,7 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0 w-40 h-40 border-2 border-current rounded-full opacity-30"
             />
-            
+
             {/* Decorative elements */}
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
@@ -165,8 +166,8 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
               <Crown className="w-4 h-4 text-yellow-800" />
             </motion.div>
           </motion.div>
-          
-          <motion.h2 
+
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -174,8 +175,8 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
           >
             {result.symbol}
           </motion.h2>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -183,6 +184,8 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
           >
             Your prophecy for today
           </motion.p>
+
+
 
           {/* Color and energy */}
           <motion.div
@@ -208,16 +211,16 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
           className="space-y-8"
         >
           {/* Message */}
-          <motion.div 
+          <motion.div
             className="bg-white rounded-3xl p-8 shadow-2xl border border-cream-200 relative overflow-hidden group"
             whileHover={{ scale: 1.02, y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             {/* Background effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-coffee-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             <div className="relative z-10">
-              <motion.h3 
+              <motion.h3
                 className="text-3xl font-bold text-mystic-800 mb-6 font-mystic flex items-center"
                 whileHover={{ scale: 1.05 }}
               >
@@ -231,16 +234,16 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
           </motion.div>
 
           {/* Ritual */}
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-br from-coffee-50 to-cream-100 rounded-3xl p-8 border border-coffee-200 shadow-xl relative overflow-hidden group"
             whileHover={{ scale: 1.02, y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
             {/* Background effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-coffee-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             <div className="relative z-10">
-              <motion.h3 
+              <motion.h3
                 className="text-3xl font-bold text-mystic-800 mb-6 font-mystic flex items-center"
                 whileHover={{ scale: 1.05 }}
               >
@@ -250,7 +253,7 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
               <p className="text-xl text-mystic-700 leading-relaxed mb-6">
                 {result.ritual}
               </p>
-              <motion.div 
+              <motion.div
                 className="bg-white rounded-2xl p-6 border border-coffee-100"
                 whileHover={{ scale: 1.02 }}
               >
@@ -321,12 +324,12 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
         >
           {/* Original Image */}
           {image && (
-            <motion.div 
+            <motion.div
               className="bg-white rounded-3xl p-6 shadow-2xl border border-cream-200"
               whileHover={{ scale: 1.02, y: -5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <motion.h3 
+              <motion.h3
                 className="text-xl font-semibold text-mystic-800 mb-6 text-center flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
               >
@@ -345,38 +348,38 @@ export default function ResultCard({ result, image, onReset }: ResultCardProps) 
           )}
 
           {/* Share Card Preview */}
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-br from-cream-50 to-coffee-100 rounded-3xl p-8 border border-coffee-200 shadow-xl"
             whileHover={{ scale: 1.02, y: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <motion.h3 
+            <motion.h3
               className="text-xl font-semibold text-mystic-800 mb-6 text-center flex items-center justify-center"
               whileHover={{ scale: 1.05 }}
             >
               <Sparkles className="w-6 h-6 mr-2 text-coffee-500" />
               Share Card
             </motion.h3>
-            
-            <motion.div 
+
+            <motion.div
               className="bg-white rounded-2xl p-6 text-center space-y-4 shadow-lg"
               whileHover={{ scale: 1.02 }}
             >
-              <motion.div 
+              <motion.div
                 className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-coffee-400 to-coffee-600 flex items-center justify-center shadow-lg"
                 whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 <SymbolIcon className="w-10 h-10 text-white" />
               </motion.div>
-              
+
               <h4 className="font-bold text-mystic-800 text-xl">
                 {result.symbol}
               </h4>
-              
+
               <p className="text-sm text-mystic-600 leading-relaxed">
                 {result.message.substring(0, 80)}...
               </p>
-              
+
               <div className="text-xs text-coffee-600 font-medium bg-coffee-50 px-3 py-2 rounded-full">
                 #CoffeeOracle #Prophecies
               </div>

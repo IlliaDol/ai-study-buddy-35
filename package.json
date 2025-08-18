@@ -7,15 +7,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@stripe/stripe-js": "^7.8.0",
     "autoprefixer": "^10.4.0",
+    "cssnano": "^7.1.0",
     "framer-motion": "^10.16.0",
     "lucide-react": "^0.292.0",
     "next": "^14.0.0",
     "postcss": "^8.4.0",
+    "postcss-preset-env": "^10.2.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-dropzone": "^14.2.0",
@@ -26,8 +33,16 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   },
   "keywords": [
@@ -38,5 +53,14 @@
     "tasseography"
   ],
   "author": "KAWA Team",
-  "license": "MIT"
+  "license": "MIT",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }

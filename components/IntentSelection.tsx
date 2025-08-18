@@ -1,385 +1,355 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Heart, DollarSign, GraduationCap, Zap, Coffee, Sparkles, Star, Globe, Palette, Moon, Users } from 'lucide-react'
-import PaymentModal from './PaymentModal'
-
+import { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Heart, 
+  DollarSign, 
+  GraduationCap, 
+  Star, 
+  Heart as HealthHeart, 
+  Plane, 
+  Palette, 
+  Moon, 
+  Home, 
+  Users,
+  ArrowLeft,
+  Coffee
+} from 'lucide-react'
+import { ReadingService } from '@/services/readingService'
 import { Intent } from '@/types'
 
 interface IntentSelectionProps {
   onSelect: (intent: Intent) => void
 }
 
-const intents = [
+const INTENTS: Array<{
+  id: Intent
+  icon: any
+  title: string
+  description: string
+  color: string
+  gradient: string
+  popular?: boolean
+}> = [
   {
-    id: 'love' as Intent,
+    id: 'love',
     icon: Heart,
-    title: 'Love',
-    subtitle: 'Relationships, friendship, self-discovery',
-    description: 'Reveals the secrets of your heart, helps you understand relationships and find the path to happiness in love',
-    color: 'from-rose-400 to-pink-500',
-    bgColor: 'bg-gradient-to-br from-rose-50 to-pink-50',
-    borderColor: 'border-rose-200',
-    keywords: ['heart', 'love', 'relationships', 'friendship', 'family'],
-    planet: 'Venus',
-    symbol: 'Rose',
-    timeOfDay: 'Evening',
-    season: 'Spring',
-    chakra: 'Heart Chakra'
+    title: 'Любов',
+    description: 'Пророцтво про любов, стосунки та серце',
+    color: 'pink',
+    gradient: 'from-pink-500 to-rose-500',
+    popular: true
   },
   {
-    id: 'money' as Intent,
+    id: 'money',
     icon: DollarSign,
-    title: 'Money',
-    subtitle: 'Career, finances, opportunities',
-    description: 'Shows the path to financial prosperity, reveals career opportunities and helps you find sources of abundance',
-    color: 'from-emerald-400 to-green-500',
-    bgColor: 'bg-gradient-to-br from-emerald-50 to-green-50',
-    borderColor: 'border-emerald-200',
-    keywords: ['money', 'career', 'business', 'investments', 'success'],
-    planet: 'Jupiter',
-    symbol: 'Oak',
-    timeOfDay: 'Morning',
-    season: 'Summer',
-    chakra: 'Solar Plexus'
+    title: 'Гроші',
+    description: 'Пророцтво про фінанси, кар\'єру та достаток',
+    color: 'green',
+    gradient: 'from-green-500 to-emerald-500'
   },
   {
-    id: 'education' as Intent,
+    id: 'education',
     icon: GraduationCap,
-    title: 'Education',
-    subtitle: 'Knowledge, wisdom, development',
-    description: 'Opens doors to new knowledge, helps you understand your talents and find the path to personal development',
-    color: 'from-blue-400 to-indigo-500',
-    bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-50',
-    borderColor: 'border-blue-200',
-    keywords: ['knowledge', 'wisdom', 'learning', 'talent', 'development'],
-    planet: 'Mercury',
-    symbol: 'Book',
-    timeOfDay: 'Day',
-    season: 'Autumn',
-    chakra: 'Throat Chakra'
+    title: 'Освіта',
+    description: 'Пророцтво про навчання, знання та розвиток',
+    color: 'blue',
+    gradient: 'from-blue-500 to-cyan-500'
   },
   {
-    id: 'luck' as Intent,
-    icon: Zap,
-    title: 'Luck',
-    subtitle: 'Chances, adventures, surprises',
-    description: 'Reveals the secrets of luck, helps you see opportunities and find the path to unexpected adventures',
-    color: 'from-amber-400 to-yellow-500',
-    bgColor: 'bg-gradient-to-br from-amber-50 to-yellow-50',
-    borderColor: 'border-amber-200',
-    keywords: ['luck', 'adventures', 'chances', 'opportunities', 'magic'],
-    planet: 'Jupiter',
-    symbol: 'Star',
-    timeOfDay: 'Night',
-    season: 'Winter',
-    chakra: 'Crown Chakra'
+    id: 'luck',
+    icon: Star,
+    title: 'Удача',
+    description: 'Пророцтво про удачу та можливості',
+    color: 'yellow',
+    gradient: 'from-yellow-500 to-amber-500'
   },
   {
-    id: 'health' as Intent,
-    icon: Heart,
-    title: 'Health',
-    subtitle: 'Wellness, vitality, healing',
-    description: 'Guides you to physical and mental wellness, reveals paths to healing and maintaining good health',
-    color: 'from-green-400 to-emerald-500',
-    bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50',
-    borderColor: 'border-green-200',
-    keywords: ['health', 'wellness', 'healing', 'vitality', 'energy'],
-    planet: 'Mars',
-    symbol: 'Tree',
-    timeOfDay: 'Dawn',
-    season: 'Spring',
-    chakra: 'Root Chakra'
+    id: 'health',
+    icon: HealthHeart,
+    title: 'Здоров\'я',
+    description: 'Пророцтво про здоров\'я та благополуччя',
+    color: 'green',
+    gradient: 'from-emerald-500 to-teal-500'
   },
   {
-    id: 'travel' as Intent,
-    icon: Globe,
-    title: 'Travel',
-    subtitle: 'Journeys, exploration, discovery',
-    description: 'Opens doors to new places and experiences, reveals hidden paths and exciting destinations',
-    color: 'from-cyan-400 to-blue-500',
-    bgColor: 'bg-gradient-to-br from-cyan-50 to-blue-50',
-    borderColor: 'border-cyan-200',
-    keywords: ['travel', 'journey', 'exploration', 'adventure', 'discovery'],
-    planet: 'Uranus',
-    symbol: 'Compass',
-    timeOfDay: 'Afternoon',
-    season: 'Summer',
-    chakra: 'Third Eye Chakra'
+    id: 'travel',
+    icon: Plane,
+    title: 'Подорожі',
+    description: 'Пророцтво про подорожі та нові горизонти',
+    color: 'cyan',
+    gradient: 'from-cyan-500 to-blue-500'
   },
   {
-    id: 'creativity' as Intent,
+    id: 'creativity',
     icon: Palette,
-    title: 'Creativity',
-    subtitle: 'Art, inspiration, expression',
-    description: 'Unlocks your creative potential, reveals sources of inspiration and artistic expression',
-    color: 'from-purple-400 to-violet-500',
-    bgColor: 'bg-gradient-to-br from-purple-50 to-violet-50',
-    borderColor: 'border-purple-200',
-    keywords: ['creativity', 'art', 'inspiration', 'expression', 'imagination'],
-    planet: 'Neptune',
-    symbol: 'Crystal',
-    timeOfDay: 'Twilight',
-    season: 'Autumn',
-    chakra: 'Sacral Chakra'
+    title: 'Творчість',
+    description: 'Пророцтво про творчість та самовираження',
+    color: 'purple',
+    gradient: 'from-purple-500 to-violet-500'
   },
   {
-    id: 'spirituality' as Intent,
+    id: 'spirituality',
     icon: Moon,
-    title: 'Spirituality',
-    subtitle: 'Inner peace, enlightenment, connection',
-    description: 'Guides you on your spiritual journey, reveals paths to inner peace and higher consciousness',
-    color: 'from-indigo-400 to-purple-500',
-    bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50',
-    borderColor: 'border-indigo-200',
-    keywords: ['spirituality', 'enlightenment', 'meditation', 'consciousness', 'peace'],
-    planet: 'Pluto',
-    symbol: 'Lotus',
-    timeOfDay: 'Midnight',
-    season: 'Winter',
-    chakra: 'Crown Chakra'
+    title: 'Духовність',
+    description: 'Пророцтво про духовність та внутрішній світ',
+    color: 'indigo',
+    gradient: 'from-indigo-500 to-purple-500'
   },
   {
-    id: 'family' as Intent,
+    id: 'family',
+    icon: Home,
+    title: 'Сім\'я',
+    description: 'Пророцтво про сім\'ю та домашній затишок',
+    color: 'orange',
+    gradient: 'from-orange-500 to-amber-500'
+  },
+  {
+    id: 'friendship',
     icon: Users,
-    title: 'Family',
-    subtitle: 'Relationships, bonds, home',
-    description: 'Reveals the dynamics of family relationships and helps strengthen bonds with loved ones',
-    color: 'from-orange-400 to-red-500',
-    bgColor: 'bg-gradient-to-br from-orange-50 to-red-50',
-    borderColor: 'border-orange-200',
-    keywords: ['family', 'home', 'bonds', 'relationships', 'support'],
-    planet: 'Saturn',
-    symbol: 'House',
-    timeOfDay: 'Evening',
-    season: 'All Seasons',
-    chakra: 'Root Chakra'
-  },
-  {
-    id: 'friendship' as Intent,
-    icon: Heart,
-    title: 'Friendship',
-    subtitle: 'Connections, loyalty, support',
-    description: 'Guides you in building meaningful friendships and maintaining strong social connections',
-    color: 'from-pink-400 to-rose-500',
-    bgColor: 'bg-gradient-to-br from-pink-50 to-rose-50',
-    borderColor: 'border-pink-200',
-    keywords: ['friendship', 'loyalty', 'support', 'connection', 'trust'],
-    planet: 'Venus',
-    symbol: 'Bridge',
-    timeOfDay: 'Day',
-    season: 'Spring',
-    chakra: 'Heart Chakra'
+    title: 'Дружба',
+    description: 'Пророцтво про дружбу та соціальні зв\'язки',
+    color: 'pink',
+    gradient: 'from-rose-500 to-pink-500'
   }
 ]
 
 export default function IntentSelection({ onSelect }: IntentSelectionProps) {
-  const [showPayment, setShowPayment] = useState(false)
-  const [selectedIntent, setSelectedIntent] = useState<any>(null)
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null)
+  const [hoveredIntent, setHoveredIntent] = useState<Intent | null>(null)
 
-  const handleIntentSelect = (intent: any) => {
+  const handleIntentSelect = (intent: Intent) => {
     setSelectedIntent(intent)
-    setShowPayment(true)
+    // Small delay for better UX
+    setTimeout(() => onSelect(intent), 300)
   }
 
-  const handlePaymentClose = () => {
-    setShowPayment(false)
-    setSelectedIntent(null)
+  const handleBack = () => {
+    // This would typically go back to welcome step
+    window.history.back()
   }
+
+  const popularIntents = useMemo(() => INTENTS.filter(intent => intent.popular), [])
+  const regularIntents = useMemo(() => INTENTS.filter(intent => !intent.popular), [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-coffee-100 to-cream-200 py-12">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-6xl mx-auto"
+    >
+      {/* Header */}
+      <div className="text-center mb-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-coffee-500 to-coffee-600 rounded-full flex items-center justify-center"
         >
-          {/* Central icon */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-            className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-coffee-500 to-coffee-600 rounded-full flex items-center justify-center shadow-2xl shadow-coffee-500/30 relative"
-          >
-            <Coffee className="w-10 h-10 text-white" />
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-5xl font-bold text-mystic-800 mb-6 font-mystic"
-          >
-            What are you thinking about today?
-          </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="text-xl text-mystic-600 max-w-2xl mx-auto leading-relaxed"
-          >
-            Choose an intent that will help AI read your coffee more accurately and reveal the secrets of your future
-          </motion.p>
+          <Coffee className="w-10 h-10 text-white" />
         </motion.div>
+        
+        <h1 className="text-4xl font-bold text-coffee-800 mb-4">
+          Оберіть намір для пророцтва
+        </h1>
+        
+        <p className="text-xl text-coffee-600 mb-6 max-w-2xl mx-auto">
+          Кожен намір має своє особливе значення та символіку. 
+          Оберіть те, що найбільше хвилює вас зараз.
+        </p>
+        
 
-        {/* Intent Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {intents.map((intent, index) => (
-            <motion.div
-              key={intent.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index + 0.8 }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleIntentSelect(intent)}
-              className={`
-                ${intent.bgColor} ${intent.borderColor}
-                border-2 rounded-2xl p-8 cursor-pointer transition-all duration-300
-                hover:shadow-2xl hover:shadow-black/10 relative overflow-hidden group
-              `}
-            >
-              {/* Card Header */}
-              <div className="text-center mb-6">
-                <motion.div 
-                  className={`
-                    w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br ${intent.color}
-                    flex items-center justify-center shadow-lg relative
-                  `}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
-                  <intent.icon className="w-8 h-8 text-white" />
-                </motion.div>
-                
-                <h3 className="text-3xl font-bold text-mystic-800 mb-2">
-                  {intent.title}
-                </h3>
-                
-                <p className="text-lg text-mystic-600 mb-4">
-                  {intent.subtitle}
-                </p>
-
-                <p className="text-mystic-600 leading-relaxed">
-                  {intent.description}
-                </p>
-              </div>
-
-              {/* Keywords */}
-              <div className="mb-6">
-                <h4 className="font-semibold text-mystic-800 mb-3 flex items-center">
-                  <Sparkles className="w-4 h-4 mr-2 text-coffee-500 flex-shrink-0" />
-                  Key Themes
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {intent.keywords.map((keyword, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 bg-white/60 text-mystic-700 rounded-full text-sm font-medium"
-                    >
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Astrological Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-white/40 rounded-lg p-3">
-                  <h5 className="font-semibold text-mystic-800 mb-1">Planet</h5>
-                  <p className="text-mystic-600">{intent.planet}</p>
-                </div>
-                <div className="bg-white/40 rounded-lg p-3">
-                  <h5 className="font-semibold text-mystic-800 mb-1">Symbol</h5>
-                  <p className="text-mystic-600">{intent.symbol}</p>
-                </div>
-                <div className="bg-white/40 rounded-lg p-3">
-                  <h5 className="font-semibold text-mystic-800 mb-1">Time</h5>
-                  <p className="text-mystic-600">{intent.timeOfDay}</p>
-                </div>
-                <div className="bg-white/40 rounded-lg p-3">
-                  <h5 className="font-semibold text-mystic-800 mb-1">Season</h5>
-                  <p className="text-mystic-600">{intent.season}</p>
-                </div>
-              </div>
-
-              {/* Energy Center */}
-              <div className="mt-4 bg-white/40 rounded-lg p-3">
-                <h5 className="font-semibold text-mystic-800 mb-1">Energy Center</h5>
-                <p className="text-mystic-600 text-sm">{intent.chakra}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Tips and Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-          className="text-center space-y-8"
-        >
-          {/* Main Tip */}
-          <div className="bg-gradient-to-r from-coffee-100 to-cream-100 px-8 py-6 rounded-2xl border border-coffee-200 shadow-lg max-w-2xl mx-auto">
-            <p className="text-coffee-700 font-semibold text-lg mb-2">
-              💡 Tip: Choose what concerns you most right now
-            </p>
-            <p className="text-coffee-600">
-              Your intent tunes AI to a specific energy and helps create a more accurate prophecy
-            </p>
-          </div>
-
-          {/* Process Explanation */}
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-8 border border-white/50 max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-mystic-800 mb-6 flex items-center justify-center">
-              <Star className="w-6 h-6 mr-3 text-coffee-500 flex-shrink-0" />
-              How does coffee magic work?
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
-                  <Coffee className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-mystic-800">Pattern Analysis</h4>
-                <p className="text-mystic-600 text-sm">AI studies every swirl and shape in the coffee grounds</p>
-              </div>
-              <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
-                  <Star className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-mystic-800">Interpretation</h4>
-                <p className="text-mystic-600 text-sm">System recognizes symbols and archetypes</p>
-              </div>
-              <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-coffee-400 to-coffee-600 rounded-full flex items-center justify-center relative">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-semibold text-mystic-800">Personalization</h4>
-                <p className="text-mystic-600 text-sm">Prophecy adapts to your intent</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Final Message */}
-          <div className="bg-gradient-to-r from-mystic-50 to-coffee-50 rounded-2xl p-6 border border-mystic-200 max-w-2xl mx-auto">
-            <p className="text-mystic-700 text-center leading-relaxed">
-              🌟 Each intent has its own special energy. AI will consider this when analyzing your coffee grounds and provide a more accurate and personalized prophecy that reveals the secrets of your future.
-            </p>
-                    </div>
-        </motion.div>
       </div>
 
-      {/* Payment Modal */}
-      {showPayment && selectedIntent && (
-        <PaymentModal
-          isOpen={showPayment}
-          onClose={handlePaymentClose}
-          intent={selectedIntent}
-        />
+      {/* Back Button */}
+      <div className="mb-8">
+        <motion.button
+          whileHover={{ scale: 1.05, x: -5 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleBack}
+          className="inline-flex items-center space-x-2 text-coffee-600 hover:text-coffee-700 font-medium transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Назад</span>
+        </motion.button>
+      </div>
+
+      {/* Popular Intents */}
+      {popularIntents.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-coffee-800 mb-6 text-center">
+            🏆 Популярні наміри
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {popularIntents.map((intent, index) => (
+              <IntentCard
+                key={intent.id}
+                intent={intent}
+                index={index}
+                isSelected={selectedIntent === intent.id}
+                isHovered={hoveredIntent === intent.id}
+                onSelect={handleIntentSelect}
+                onHover={setHoveredIntent}
+                isPopular={true}
+              />
+            ))}
+          </div>
+        </div>
       )}
-    </div>
+
+      {/* All Intents Grid */}
+      <div>
+        <h2 className="text-2xl font-bold text-coffee-800 mb-6 text-center">
+          Всі наміри
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {regularIntents.map((intent, index) => (
+            <IntentCard
+              key={intent.id}
+              intent={intent}
+              index={index + popularIntents.length}
+              isSelected={selectedIntent === intent.id}
+              isHovered={hoveredIntent === intent.id}
+              onSelect={handleIntentSelect}
+              onHover={setHoveredIntent}
+              isPopular={false}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Selection Info */}
+      <AnimatePresence>
+        {selectedIntent && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="mt-12 text-center"
+          >
+            <div className="bg-gradient-to-r from-coffee-50 to-cream-50 rounded-2xl p-6 border border-coffee-200 inline-block">
+              <p className="text-coffee-800 font-medium">
+                Обрано: <span className="font-bold">{ReadingService.getIntentTitle(selectedIntent)}</span>
+              </p>
+              <p className="text-coffee-600 text-sm mt-1">
+                {ReadingService.getIntentDescription(selectedIntent)}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+interface IntentCardProps {
+  intent: {
+    id: Intent
+    icon: any
+    title: string
+    description: string
+    color: string
+    gradient: string
+    popular?: boolean
+  }
+  index: number
+  isSelected: boolean
+  isHovered: boolean
+  onSelect: (intent: Intent) => void
+  onHover: (intent: Intent | null) => void
+  isPopular: boolean
+}
+
+function IntentCard({ 
+  intent, 
+  index, 
+  isSelected, 
+  isHovered, 
+  onSelect, 
+  onHover,
+  isPopular 
+}: IntentCardProps) {
+  const IconComponent = intent.icon
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ 
+        scale: 1.05, 
+        y: -5,
+        transition: { type: "spring", stiffness: 300 }
+      }}
+      whileTap={{ scale: 0.95 }}
+      onHoverStart={() => onHover(intent.id)}
+      onHoverEnd={() => onHover(null)}
+      onClick={() => onSelect(intent.id)}
+      className={`
+        relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-500 group
+        ${isSelected 
+          ? 'border-coffee-500 shadow-2xl shadow-coffee-500/30 bg-gradient-to-br from-coffee-50 to-cream-50' 
+          : 'border-gray-200 hover:border-coffee-300 hover:shadow-2xl hover:shadow-coffee-500/20 bg-white hover:bg-gradient-to-br hover:from-coffee-50/30 hover:to-cream-50/30'
+        }
+        ${isPopular ? 'ring-2 ring-amber-400 ring-offset-2' : ''}
+      `}
+    >
+      {/* Popular Badge */}
+      {isPopular && (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-amber-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg border-2 border-amber-300 whitespace-nowrap">
+            🏆 Популярний
+          </div>
+        </div>
+      )}
+
+      {/* Icon */}
+      <motion.div 
+        className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${intent.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}
+        whileHover={{ 
+          scale: 1.1, 
+          rotate: 5,
+          transition: { type: "spring", stiffness: 300 }
+        }}
+      >
+        <IconComponent className="w-8 h-8 text-white" />
+      </motion.div>
+
+      {/* Content */}
+      <div className="text-center">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
+          {intent.title}
+        </h3>
+        <p className="text-gray-600 text-sm leading-relaxed">
+          {intent.description}
+        </p>
+      </div>
+
+      {/* Selection Indicator */}
+      <motion.div 
+        className={`
+          w-6 h-6 mx-auto mt-4 rounded-full border-2 transition-all duration-500
+          ${isSelected 
+            ? 'border-coffee-500 bg-coffee-500 shadow-lg shadow-coffee-500/50' 
+            : 'border-gray-300 group-hover:border-coffee-400'
+          }
+        `}
+        whileHover={{ scale: 1.2 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        {isSelected && (
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="w-full h-full flex items-center justify-center"
+          >
+            <div className="w-2 h-2 bg-white rounded-full" />
+          </motion.div>
+        )}
+      </motion.div>
+    </motion.div>
   )
 }

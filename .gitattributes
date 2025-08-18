@@ -1,0 +1,144 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# TypeScript files
+*.ts text eol=lf
+*.tsx text eol=lf
+
+# JavaScript files
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+
+# JSON files
+*.json text eol=lf
+
+# CSS files
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+
+# HTML files
+*.html text eol=lf
+*.htm text eol=lf
+
+# Markdown files
+*.md text eol=lf
+*.markdown text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+
+# Windows batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Documentation
+*.txt text eol=lf
+*.rst text eol=lf
+*.adoc text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+*.webp binary
+*.avif binary
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+
+# Executables
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+
+# Database files
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Log files
+*.log text eol=lf
+
+# Lock files
+*.lock text eol=lf
+package-lock.json text eol=lf
+yarn.lock text eol=lf
+pnpm-lock.yaml text eol=lf
+
+# Environment files
+.env* text eol=lf
+.env.local text eol=lf
+.env.development text eol=lf
+.env.production text eol=lf
+
+# Git files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.gitmodules text eol=lf
+
+# Editor files
+.vscode/settings.json text eol=lf
+.vscode/tasks.json text eol=lf
+.vscode/launch.json text eol=lf
+.vscode/extensions.json text eol=lf
+.idea/workspace.xml text eol=lf
+*.sublime-project text eol=lf
+*.sublime-workspace text eol=lf
+
+# OS generated files
+.DS_Store binary
+Thumbs.db binary
+desktop.ini binary
+
+# Temporary files
+*.tmp text eol=lf
+*.temp text eol=lf
+*.swp text eol=lf
+*.swo text eol=lf
+*~ text eol=lf
+
+# Build outputs
+dist/ binary
+build/ binary
+.next/ binary
+out/ binary
+coverage/ binary
+
+# Dependencies
+node_modules/ binary
+vendor/ binary
+bower_components/ binary
+
+# Generated files
+*.min.js binary
+*.min.css binary
+*.map text eol=lf

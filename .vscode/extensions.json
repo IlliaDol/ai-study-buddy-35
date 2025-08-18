@@ -1,0 +1,251 @@
+{
+  "recommendations": [
+    // TypeScript and JavaScript support
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    
+    // React development
+    "ms-vscode.vscode-react-native",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    
+    // Code quality and formatting
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-json",
+    
+    // Git integration
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    
+    // Icons and themes
+    "pkief.material-icon-theme",
+    "zhuangtongfa.material-theme",
+    
+    // Productivity
+    "ms-vscode.vscode-json",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-css-peek",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag",
+    
+    // Testing
+    "orta.vscode-jest",
+    "ms-vscode.vscode-jest-debug",
+    
+    // Debugging
+    "ms-vscode.vscode-js-debug",
+    "ms-vscode.vscode-js-debug-companion",
+    
+    // Database
+    "ms-mssql.mssql",
+    "cweijan.vscode-mysql-client2",
+    
+    // Docker
+    "ms-azuretools.vscode-docker",
+    
+    // REST API testing
+    "humao.rest-client",
+    
+    // Markdown support
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    
+    // Code snippets
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    
+    // Performance
+    "ms-vscode.vscode-js-profile-flame",
+    "ms-vscode.vscode-js-profile-table",
+    
+    // Accessibility
+    "deque-systems.vscode-axe-linter",
+    
+    // Code metrics
+    "kisstkondoros.vscode-codemetrics",
+    
+    // Error lens
+    "usernamehw.errorlens",
+    
+    // Import cost
+    "wix.vscode-import-cost",
+    
+    // Better comments
+    "aaron-bond.better-comments",
+    
+    // Code spell checker
+    "streetsidesoftware.code-spell-checker",
+    
+    // Git history
+    "donjayamanne.githistory",
+    
+    // Live share
+    "ms-vscode.live-server",
+    
+    // Thunder client (alternative to Postman)
+    "rangav.vscode-thunder-client",
+    
+    // Tailwind CSS IntelliSense
+    "bradlc.vscode-tailwindcss",
+    
+    // CSS Peek
+    "pranaygp.vscode-css-peek",
+    
+    // HTML CSS Support
+    "ecmel.vscode-html-css-support",
+    
+    // IntelliSense for CSS class names
+    "Zignd.html-css-class-completion",
+    
+    // Color Highlight
+    "naumovs.color-highlight",
+    
+    // Color Picker
+    "anseki.vscode-color",
+    
+    // SVG
+    "jock.svg",
+    
+    // Emmet
+    "ms-vscode.emmet",
+    
+    // Auto Rename Tag
+    "formulahendry.auto-rename-tag",
+    
+    // Auto Close Tag
+    "formulahendry.auto-close-tag",
+    
+    // Bracket Pair Colorizer
+    "CoenraadS.bracket-pair-colorizer-2",
+    
+    // Indent Rainbow
+    "oderwat.indent-rainbow",
+    
+    // Trailing Spaces
+    "shardulm94.trailing-spaces",
+    
+    // Highlight Matching Tag
+    "vincaslt.highlight-matching-tag",
+    
+    // Path Intellisense
+    "christian-kohler.path-intellisense",
+    
+    // NPM Intellisense
+    "christian-kohler.npm-intellisense",
+    
+    // Import Cost
+    "wix.vscode-import-cost",
+    
+    // Project Manager
+    "alefragnani.project-manager",
+    
+    // Bookmarks
+    "alefragnani.bookmarks",
+    
+    // Todo Tree
+    "Gruntfuggly.todo-tree",
+    
+    // GitLens
+    "eamodio.gitlens",
+    
+    // Git Graph
+    "mhutchie.git-graph",
+    
+    // Git History
+    "donjayamanne.githistory",
+    
+    // Git Blame
+    "waderyan.gitblame",
+    
+    // GitHub Pull Requests and Issues
+    "GitHub.vscode-pull-request-github",
+    
+    // GitHub Repositories
+    "GitHub.remotehub",
+    
+    // GitHub Copilot
+    "GitHub.copilot",
+    
+    // GitHub Copilot Chat
+    "GitHub.copilot-chat",
+    
+    // Code Time
+    "softwaredotcom.swdc-vscode",
+    
+    // WakaTime
+    "WakaTime.vscode-wakatime",
+    
+    // Clock
+    "Compulim.vscode-clock",
+    
+    // Material Icon Theme
+    "pkief.material-icon-theme",
+    
+    // One Dark Pro
+    "zhuangtongfa.material-theme",
+    
+    // Dracula Official
+    "dracula-theme.theme-dracula",
+    
+    // Night Owl
+    "sdras.night-owl",
+    
+    // Winter is Coming
+    "johnpapa.winteriscoming",
+    
+    // Ayu
+    "teabyii.ayu",
+    
+    // Monokai Pro
+    "monokai.theme-monokai-pro-vscode",
+    
+    // Tokyo Night
+    "enkia.tokyo-night",
+    
+    // Catppuccin
+    "Catppuccin.catppuccin-vsc",
+    
+    // Gruvbox Theme
+    "jdinhlife.gruvbox",
+    
+    // Nord
+    "arcticicestudio.nord-visual-studio-code",
+    
+    // Palenight Theme
+    "whizkydee.material-palenight-theme",
+    
+    // Shades of Purple
+    "ahmadawais.shades-of-purple",
+    
+    // Synthwave '84
+    "RobbOwen.synthwave-vscode",
+    
+    // Cobalt2
+    "wesbos.theme-cobalt2",
+    
+    // Oceanic Next
+    "ms-vscode.Theme-OceanicNext",
+    
+    // Seti Icons
+    "qinjia.seti-icons",
+    
+    // VSCode Icons
+    "vscode-icons-team.vscode-icons",
+    
+    // Material Icon Theme
+    "pkief.material-icon-theme",
+    
+    // FiraCode
+    "ms-vscode.vscode-json",
+    
+    // JetBrains Mono
+    "ms-vscode.vscode-json"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "ms-vscode.vscode-javascript-debug",
+    "ms-vscode.vscode-js-debug",
+    "ms-vscode.vscode-js-debug-companion"
+  ]
+}

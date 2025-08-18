@@ -169,29 +169,43 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: plans.indexOf(plan) * 0.1 }}
+                      whileHover={{ 
+                        scale: 1.02, 
+                        y: -5,
+                        transition: { type: "spring", stiffness: 300 }
+                      }}
+                      whileTap={{ scale: 0.98 }}
                       className={`
-                        relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300
+                        relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-500
                         ${selectedPlan === plan.id 
-                          ? 'border-coffee-500 shadow-2xl shadow-coffee-500/30' 
-                          : 'border-gray-200 hover:border-coffee-300 hover:shadow-xl'
+                          ? 'border-coffee-500 shadow-2xl shadow-coffee-500/30 bg-gradient-to-br from-coffee-50 to-cream-50' 
+                          : 'border-gray-200 hover:border-coffee-300 hover:shadow-2xl hover:shadow-coffee-500/20 bg-white hover:bg-gradient-to-br hover:from-coffee-50/30 hover:to-cream-50/30'
                         }
                         ${plan.popular ? 'ring-2 ring-amber-400 ring-offset-2' : ''}
+                        group
                       `}
                       onClick={() => setSelectedPlan(plan.id)}
                     >
                       {/* Popular Badge */}
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <span className="bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-sm font-bold">
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                          <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-amber-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg border-2 border-amber-300 whitespace-nowrap">
                             🏆 Популярний
-                          </span>
+                          </div>
                         </div>
                       )}
 
                       {/* Plan Icon */}
-                      <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
+                      <motion.div 
+                        className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${plan.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}
+                        whileHover={{ 
+                          scale: 1.1, 
+                          rotate: 5,
+                          transition: { type: "spring", stiffness: 300 }
+                        }}
+                      >
                         <IconComponent className="w-8 h-8 text-white" />
-                      </div>
+                      </motion.div>
 
                       {/* Plan Details */}
                       <div className="text-center mb-6">
@@ -222,17 +236,27 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
                       </ul>
 
                       {/* Selection Indicator */}
-                      <div className={`
-                        w-6 h-6 mx-auto rounded-full border-2 transition-all duration-300
-                        ${selectedPlan === plan.id 
-                          ? 'border-coffee-500 bg-coffee-500' 
-                          : 'border-gray-300'
-                        }
-                      `}>
+                      <motion.div 
+                        className={`
+                          w-6 h-6 mx-auto rounded-full border-2 transition-all duration-500
+                          ${selectedPlan === plan.id 
+                            ? 'border-coffee-500 bg-coffee-500 shadow-lg shadow-coffee-500/50' 
+                            : 'border-gray-300 group-hover:border-coffee-400'
+                          }
+                        `}
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
                         {selectedPlan === plan.id && (
-                          <Check className="w-4 h-4 text-white mx-auto mt-0.5" />
+                          <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            <Check className="w-4 h-4 text-white mx-auto mt-0.5" />
+                          </motion.div>
                         )}
-                      </div>
+                      </motion.div>
                     </motion.div>
                   )
                 })}
@@ -250,11 +274,21 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
                      disabled={loading}
                      className="
                        bg-gradient-to-r from-coffee-500 to-coffee-600 text-white px-12 py-4 rounded-full
-                       text-xl font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-300
+                       text-xl font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-500
                        hover:from-coffee-600 hover:to-coffee-700 hover:shadow-coffee-500/50
+                       hover:scale-105 hover:-translate-y-1 active:scale-95
                        disabled:opacity-50 disabled:cursor-not-allowed
+                       relative overflow-hidden group
                      "
                    >
+                     {/* Hover effect overlay */}
+                     <div className="absolute inset-0 bg-gradient-to-r from-coffee-600 to-coffee-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                     
+                     {/* Shimmer effect */}
+                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                     
+                     {/* Button content */}
+                     <span className="relative z-10">
                      {loading ? (
                        <div className="flex items-center space-x-2">
                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -263,6 +297,7 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
                      ) : (
                        `Оплатити ${plans.find(p => p.id === selectedPlan)?.price}$`
                      )}
+                     </span>
                    </button>
                    
                    <p className="text-gray-500 text-sm mt-3">
