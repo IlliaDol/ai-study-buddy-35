@@ -1,8 +1,8 @@
 'use client'
 
+import { AnimatePresence, motion } from 'framer-motion'
+import { Check, Coffee, CreditCard, Shield, Sparkles, Star, X, Zap } from 'lucide-react'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Star, Zap, Crown, Coffee, Sparkles, Check } from 'lucide-react'
 
 interface PaymentModalProps {
   isOpen: boolean
@@ -20,15 +20,10 @@ const plans = [
     name: 'Одноразове пророцтво',
     price: 0.99,
     currency: 'USD',
-    description: 'Отримайте детальне пророцтво для вашого намерения',
-    features: [
-      'Детальне AI пророцтво',
-      'Астрологічні деталі',
-      'Персональні поради',
-      'Доступ 24 години'
-    ],
+    description: 'Детальне AI пророцтво для вашого намерения',
+    features: ['AI аналіз', 'Астрологічні деталі', 'Персональні поради'],
     icon: Coffee,
-    color: 'from-blue-500 to-blue-600',
+    color: 'bg-blue-500',
     popular: false
   },
   {
@@ -37,14 +32,9 @@ const plans = [
     price: 3.99,
     currency: 'USD',
     description: 'Економічний пакет для регулярних запитів',
-    features: [
-      '5 детальних пророцтв',
-      'Збереження історії',
-      'Порівняння результатів',
-      'Доступ 30 днів'
-    ],
+    features: ['5 пророцтв', 'Збереження історії', 'Порівняння результатів'],
     icon: Sparkles,
-    color: 'from-purple-500 to-purple-600',
+    color: 'bg-purple-500',
     popular: true
   },
   {
@@ -52,33 +42,10 @@ const plans = [
     name: 'Premium місяць',
     price: 9.99,
     currency: 'USD',
-    description: 'Необмежена кількість пророцтв та розширені можливості',
-    features: [
-      'Необмежена кількість пророцтв',
-      'Детальна аналітика',
-      'Експертні поради',
-      'Пріоритетна підтримка',
-      'Доступ 30 днів'
-    ],
+    description: 'Необмежена кількість пророцтв',
+    features: ['Необмежено пророцтв', 'Детальна аналітика', 'Експертні поради'],
     icon: Star,
-    color: 'from-amber-500 to-amber-600',
-    popular: false
-  },
-  {
-    id: 'vip',
-    name: 'VIP місяць',
-    price: 19.99,
-    currency: 'USD',
-    description: 'Повний доступ до всіх функцій та ексклюзивний контент',
-    features: [
-      'Все з Premium',
-      'Ексклюзивні ритуали',
-      'Персональний астролог',
-      'Групові сесії',
-      'Доступ 30 днів'
-    ],
-    icon: Crown,
-    color: 'from-rose-500 to-rose-600',
+    color: 'bg-amber-500',
     popular: false
   }
 ]
@@ -86,39 +53,46 @@ const plans = [
 export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const [paymentWidget, setPaymentWidget] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [showWidget, setShowWidget] = useState(false)
+  const [paymentData, setPaymentData] = useState<any>(null)
 
   const handlePayment = async (planId: string) => {
     setLoading(true)
+    setError(null)
+
     try {
-      // Створюємо NOWPayments payment
       const response = await fetch('/api/create-nowpayment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          plan: planId, 
+        body: JSON.stringify({
+          plan: planId,
           intent: intent.id,
-          intentTitle: intent.title 
+          intentTitle: intent.title
         })
       })
-      
-      if (response.ok) {
-        const payment = await response.json()
-        // Створюємо iframe для widget
-        const widgetUrl = `https://nowpayments.io/embeds/payment-widget?iid=${payment.id}`
-        setPaymentWidget(widgetUrl)
-        setShowWidget(true)
-      } else {
-        throw new Error('Payment creation failed')
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Помилка створення оплати')
       }
-    } catch (error) {
+
+      const payment = await response.json()
+      setPaymentData(payment)
+      setShowWidget(true)
+    } catch (error: any) {
       console.error('Payment error:', error)
-      alert('Помилка створення оплати. Спробуйте ще раз.')
+      setError(error.message || 'Помилка створення оплати. Спробуйте ще раз.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const resetPayment = () => {
+    setShowWidget(false)
+    setPaymentData(null)
+    setError(null)
+    setSelectedPlan(null)
   }
 
   return (
@@ -128,24 +102,24 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl"
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-gradient-to-r from-coffee-500 to-coffee-600 text-white p-6 rounded-t-3xl">
+            <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold mb-2">
-                    Оберіть план для {intent.title}
+                  <h2 className="text-2xl font-bold mb-2">
+                    💫 Оберіть план для {intent.title}
                   </h2>
-                  <p className="text-coffee-100 text-lg">
+                  <p className="text-blue-100">
                     {intent.subtitle}
                   </p>
                 </div>
@@ -158,209 +132,199 @@ export default function PaymentModal({ isOpen, onClose, intent }: PaymentModalPr
               </div>
             </div>
 
-            {/* Plans Grid */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {plans.map((plan) => {
-                  const IconComponent = plan.icon
-                  return (
-                    <motion.div
-                      key={plan.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: plans.indexOf(plan) * 0.1 }}
-                      whileHover={{ 
-                        scale: 1.02, 
-                        y: -5,
-                        transition: { type: "spring", stiffness: 300 }
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`
-                        relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-500
-                        ${selectedPlan === plan.id 
-                          ? 'border-coffee-500 shadow-2xl shadow-coffee-500/30 bg-gradient-to-br from-coffee-50 to-cream-50' 
-                          : 'border-gray-200 hover:border-coffee-300 hover:shadow-2xl hover:shadow-coffee-500/20 bg-white hover:bg-gradient-to-br hover:from-coffee-50/30 hover:to-cream-50/30'
-                        }
-                        ${plan.popular ? 'ring-2 ring-amber-400 ring-offset-2' : ''}
-                        group
-                      `}
-                      onClick={() => setSelectedPlan(plan.id)}
-                    >
-                      {/* Popular Badge */}
-                      {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                          <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-amber-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg border-2 border-amber-300 whitespace-nowrap">
-                            🏆 Популярний
-                          </div>
-                        </div>
-                      )}
+            {/* Error Display */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg"
+              >
+                <p className="text-red-700 text-sm">{error}</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
+                >
+                  Закрити
+                </button>
+              </motion.div>
+            )}
 
-                      {/* Plan Icon */}
-                      <motion.div 
-                        className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${plan.color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}
-                        whileHover={{ 
-                          scale: 1.1, 
-                          rotate: 5,
-                          transition: { type: "spring", stiffness: 300 }
-                        }}
-                      >
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </motion.div>
+            {/* Plans Selection */}
+            {!showWidget && (
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {plans.map((plan) => {
+                    const IconComponent = plan.icon
+                    const isSelected = selectedPlan === plan.id
 
-                      {/* Plan Details */}
-                      <div className="text-center mb-6">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          {plan.name}
-                        </h3>
-                        <div className="mb-4">
-                          <span className="text-4xl font-bold text-gray-900">
-                            ${plan.price}
-                          </span>
-                          <span className="text-gray-500 ml-1">
-                            {plan.currency}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          {plan.description}
-                        </p>
-                      </div>
-
-                      {/* Features */}
-                      <ul className="space-y-3 mb-6">
-                        {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-center text-sm text-gray-700">
-                            <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-
-                      {/* Selection Indicator */}
-                      <motion.div 
+                    return (
+                      <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: plans.indexOf(plan) * 0.1 }}
+                        whileHover={{ y: -5 }}
                         className={`
-                          w-6 h-6 mx-auto rounded-full border-2 transition-all duration-500
-                          ${selectedPlan === plan.id 
-                            ? 'border-coffee-500 bg-coffee-500 shadow-lg shadow-coffee-500/50' 
-                            : 'border-gray-300 group-hover:border-coffee-400'
+                          relative p-6 rounded-xl border-2 cursor-pointer transition-all duration-300
+                          ${isSelected
+                            ? 'border-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50'
+                            : 'border-gray-200 hover:border-blue-300 hover:shadow-lg bg-white'
                           }
+                          ${plan.popular ? 'ring-2 ring-amber-400 ring-offset-2' : ''}
                         `}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setSelectedPlan(plan.id)}
                       >
-                        {selectedPlan === plan.id && (
-                          <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            <Check className="w-4 h-4 text-white mx-auto mt-0.5" />
-                          </motion.div>
+                        {/* Popular Badge */}
+                        {plan.popular && (
+                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                            <div className="bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">
+                              🏆 Популярний
+                            </div>
+                          </div>
                         )}
+
+                        {/* Plan Icon */}
+                        <div className={`w-12 h-12 mx-auto mb-4 rounded-full ${plan.color} flex items-center justify-center`}>
+                          <IconComponent className="w-6 h-6 text-white" />
+                        </div>
+
+                        {/* Plan Details */}
+                        <div className="text-center mb-4">
+                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            {plan.name}
+                          </h3>
+                          <div className="mb-3">
+                            <span className="text-3xl font-bold text-gray-900">
+                              ${plan.price}
+                            </span>
+                            <span className="text-gray-500 ml-1 text-sm">
+                              {plan.currency}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm">
+                            {plan.description}
+                          </p>
+                        </div>
+
+                        {/* Features */}
+                        <ul className="space-y-2 mb-4">
+                          {plan.features.map((feature, index) => (
+                            <li key={index} className="flex items-center text-sm text-gray-700">
+                              <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Selection Indicator */}
+                        <div className={`
+                          w-5 h-5 mx-auto rounded-full border-2 transition-all duration-300
+                          ${isSelected
+                            ? 'border-blue-500 bg-blue-500'
+                            : 'border-gray-300'
+                          }
+                        `}>
+                          {isSelected && (
+                            <Check className="w-3 h-3 text-white mx-auto mt-0.5" />
+                          )}
+                        </div>
                       </motion.div>
-                    </motion.div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
+
+                {/* Payment Button */}
+                {selectedPlan && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center"
+                  >
+                    <button
+                      onClick={() => handlePayment(selectedPlan)}
+                      disabled={loading}
+                      className="
+                        bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full
+                        text-lg font-semibold shadow-lg transition-all duration-300
+                        hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                        flex items-center justify-center mx-auto space-x-2
+                      "
+                    >
+                      {loading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Обробка...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          <span>Оплатити ${plans.find(p => p.id === selectedPlan)?.price}</span>
+                        </>
+                      )}
+                    </button>
+
+                    <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Shield className="w-4 h-4 mr-1" />
+                        Безпечно
+                      </div>
+                      <div className="flex items-center">
+                        <Zap className="w-4 h-4 mr-1" />
+                        Швидко
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
+            )}
 
-                             {/* Payment Button or Widget */}
-               {selectedPlan && !showWidget && (
-                 <motion.div
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   className="mt-8 text-center"
-                 >
-                   <button
-                     onClick={() => handlePayment(selectedPlan)}
-                     disabled={loading}
-                     className="
-                       bg-gradient-to-r from-coffee-500 to-coffee-600 text-white px-12 py-4 rounded-full
-                       text-xl font-semibold shadow-2xl shadow-coffee-500/30 transition-all duration-500
-                       hover:from-coffee-600 hover:to-coffee-700 hover:shadow-coffee-500/50
-                       hover:scale-105 hover:-translate-y-1 active:scale-95
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       relative overflow-hidden group
-                     "
-                   >
-                     {/* Hover effect overlay */}
-                     <div className="absolute inset-0 bg-gradient-to-r from-coffee-600 to-coffee-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                     
-                     {/* Shimmer effect */}
-                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                     
-                     {/* Button content */}
-                     <span className="relative z-10">
-                     {loading ? (
-                       <div className="flex items-center space-x-2">
-                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                         <span>Обробка...</span>
-                       </div>
-                     ) : (
-                       `Оплатити ${plans.find(p => p.id === selectedPlan)?.price}$`
-                     )}
-                     </span>
-                   </button>
-                   
-                   <p className="text-gray-500 text-sm mt-3">
-                     Безпечна оплата криптовалютою • Можна скасувати в будь-який час
-                   </p>
-                 </motion.div>
-               )}
+            {/* Payment Widget */}
+            {showWidget && paymentData && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-6"
+              >
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    💳 Оплата криптовалютою
+                  </h3>
+                  <p className="text-gray-600">
+                    Оберіть зручну для вас криптовалюту та завершіть оплату
+                  </p>
+                </div>
 
-               {/* Payment Widget */}
-               {showWidget && paymentWidget && (
-                 <motion.div
-                   initial={{ opacity: 0, scale: 0.9 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   className="mt-8 text-center"
-                 >
-                   <div className="bg-white rounded-2xl border-2 border-coffee-200 p-4 shadow-xl">
-                     <h3 className="text-xl font-bold text-coffee-800 mb-4">
-                       💳 Оплата криптовалютою
-                     </h3>
-                     <div className="flex justify-center">
-                       <iframe 
-                         src={paymentWidget}
-                         width="410" 
-                         height="696" 
-                         frameBorder="0" 
-                         scrolling="no" 
-                         style={{ overflowY: 'hidden' }}
-                         title="Payment Widget"
-                       />
-                     </div>
-                     <button
-                       onClick={() => {
-                         setShowWidget(false)
-                         setPaymentWidget(null)
-                       }}
-                       className="mt-4 text-coffee-600 hover:text-coffee-700 underline text-sm"
-                     >
-                       ← Повернутися до вибору плану
-                     </button>
-                   </div>
-                 </motion.div>
-               )}
-
-              {/* Additional Info */}
-              <div className="mt-8 p-6 bg-gradient-to-r from-coffee-50 to-cream-50 rounded-2xl border border-coffee-200">
-                <h4 className="text-lg font-semibold text-coffee-800 mb-3 flex items-center">
-                  <Zap className="w-5 h-5 mr-2 text-coffee-600" />
-                  Що включено в кожен план?
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-coffee-700">
-                  <div>
-                    <p>✅ AI аналіз кофейної гущі</p>
-                    <p>✅ Персональні пророцтва</p>
-                    <p>✅ Астрологічні деталі</p>
-                  </div>
-                  <div>
-                    <p>✅ Збереження історії</p>
-                    <p>✅ Мобільна версія</p>
-                    <p>✅ 24/7 доступ</p>
+                <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                  <div className="flex justify-center">
+                    <iframe
+                      src={paymentData.widget_url}
+                      width="400"
+                      height="600"
+                      frameBorder="0"
+                      scrolling="no"
+                      className="rounded-lg shadow-lg"
+                      title="Payment Widget"
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
+
+                <div className="text-center space-y-4">
+                  <button
+                    onClick={resetPayment}
+                    className="text-blue-600 hover:text-blue-800 underline text-sm"
+                  >
+                    ← Повернутися до вибору плану
+                  </button>
+
+                  <div className="text-xs text-gray-500">
+                    <p>• Безпечна оплата через NOWPayments</p>
+                    <p>• Підтримка всіх популярних криптовалют</p>
+                    <p>• Можна скасувати в будь-який час</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       )}

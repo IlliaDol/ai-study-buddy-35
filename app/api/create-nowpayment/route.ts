@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-// NOWPayments API configuration
-const NOWPAYMENTS_API_KEY = '78WRCRN-GV3M3RB-HD1CHR9-HVXS5RZ'
-const NOWPAYMENTS_BASE_URL = 'https://api.nowpayments.io/v1'
+// NOWPayments API configuration - use environment variables
+const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY || '78WRCRN-GV3M3RB-HD1CHR9-HVXS5RZ'
+const NOWPAYMENTS_BASE_URL = process.env.NOWPAYMENTS_BASE_URL || 'https://api.nowpayments.io/v1'
 
 // Plan configurations with prices in USD
 const planConfigs = {
@@ -16,25 +16,10 @@ const planConfigs = {
     price: 3.99,
     description: '5 детальних пророцтв з збереженням історії'
   },
-  package10: {
-    name: 'Пакет 10 пророцтв',
-    price: 6.99,
-    description: '10 детальних пророцтв з розширеними можливостями'
-  },
-  package20: {
-    name: 'Пакет 20 пророцтв',
-    price: 11.99,
-    description: '20 детальних пророцтв з ексклюзивним контентом'
-  },
   premium: {
     name: 'Premium місяць',
     price: 9.99,
     description: 'Необмежена кількість пророцтв та розширені можливості'
-  },
-  vip: {
-    name: 'VIP місяць',
-    price: 19.99,
-    description: 'Повний доступ до всіх функцій та ексклюзивний контент'
   }
 }
 
@@ -45,7 +30,7 @@ export async function POST(request: Request) {
     // Validation
     if (!plan || !intent || !intentTitle) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Відсутні обов\'язкові поля: plan, intent, intentTitle' },
         { status: 400 }
       )
     }
@@ -53,8 +38,16 @@ export async function POST(request: Request) {
     const planConfig = planConfigs[plan as keyof typeof planConfigs]
     if (!planConfig) {
       return NextResponse.json(
-        { error: 'Invalid plan' },
+        { error: `Невірний план: ${plan}. Доступні плани: ${Object.keys(planConfigs).join(', ')}` },
         { status: 400 }
+      )
+    }
+
+    // Validate API key
+    if (!NOWPAYMENTS_API_KEY || NOWPAYMENTS_API_KEY === 'your-api-key-here') {
+      return NextResponse.json(
+        { error: 'NOWPayments API ключ не налаштований' },
+        { status: 500 }
       )
     }
 
@@ -73,6 +66,11 @@ export async function POST(request: Request) {
       is_fee_paid_by_user: false
     }
 
+    console.log('Creating NOWPayments payment with data:', {
+      ...paymentData,
+      api_key: NOWPAYMENTS_API_KEY ? '***' : 'NOT_SET'
+    })
+
     const response = await fetch(`${NOWPAYMENTS_BASE_URL}/invoice`, {
       method: 'POST',
       headers: {
@@ -83,25 +81,64 @@ export async function POST(request: Request) {
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
-      console.error('NOWPayments API error:', errorData)
-      throw new Error(`NOWPayments API error: ${response.status}`)
+      const errorData = await response.json().catch(() => ({}))
+      console.error('NOWPayments API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      })
+
+      // Provide more specific error messages
+      if (response.status === 401) {
+        return NextResponse.json(
+          { error: 'Невірний API ключ NOWPayments. Перевірте налаштування.' },
+          { status: 401 }
+        )
+      } else if (response.status === 429) {
+        return NextResponse.json(
+          { error: 'Перевищено ліміт запитів до NOWPayments. Спробуйте пізніше.' },
+          { status: 429 }
+        )
+      } else {
+        return NextResponse.json(
+          { error: `Помилка NOWPayments API: ${response.status} ${response.statusText}` },
+          { status: response.status }
+        )
+      }
     }
 
     const payment = await response.json()
+    console.log('Payment created successfully:', payment)
 
     return NextResponse.json({
       id: payment.id,
       invoice_url: payment.invoice_url,
       payment_id: payment.id,
       status: 'created',
-      widget_url: `https://nowpayments.io/embeds/payment-widget?iid=${payment.id}`
+      widget_url: `https://nowpayments.io/embeds/payment-widget?iid=${payment.id}`,
+      plan: planConfig.name,
+      price: planConfig.price
     })
 
   } catch (error) {
     console.error('Payment creation error:', error)
+
+    // Provide user-friendly error messages
+    if (error instanceof Error) {
+      if (error.message.includes('fetch')) {
+        return NextResponse.json(
+          { error: 'Помилка з\'єднання з сервером оплати. Перевірте інтернет-з\'єднання.' },
+          { status: 500 }
+        )
+      }
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create payment' },
+      { error: 'Невідома помилка при створенні оплати' },
       { status: 500 }
     )
   }
